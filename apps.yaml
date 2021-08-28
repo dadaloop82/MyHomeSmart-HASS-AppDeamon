@@ -1,0 +1,17 @@
+predict_switch:
+  module: hass_predictswitch
+  class: HassPredictSwitch
+  plugin:
+    - HASS
+  config:
+    # period (in day) for get history data from now
+    historyday: 30
+    # time range in minutes for analysing model of each basedon entities
+    timerangehistoryseconds: 0
+    # timezone
+    timezone: Europe/Rome
+    # group of predict events [name of event|baseswitch|basedon]
+    predictsevent:
+      torunningvacuum:
+        basewitch: switch.samsung_8_series_50
+        basedon: [person.daniel_2, person.giuliana]
