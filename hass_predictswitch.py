@@ -14,6 +14,7 @@ E_ERROR = "ERROR"
 # 2021-08-20T14:43:40+00:00
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
 ALT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f+00:00"
+ONPERIOD_DATETIME_FORMAT = "%H:%M"
 
 # HassPredictSwitch Class
 
@@ -81,6 +82,7 @@ class HassPredictSwitch(hass.Hass):
         # bo = basedOnEntities
         entityStates = {'bt': {}, 'bo': {}}
         baseswitch_historys = []
+        isOnState = {'state': False, 'datetime': None}
 
         for event in config.Get('predictsevent'):
             # get baseswitch
@@ -100,9 +102,9 @@ class HassPredictSwitch(hass.Hass):
 
                     # calculate date
                     endDate = utility.getdifferncedate(
-                        currentDate, "days", startDayPeriod)
+                        currentDate.replace(hour=23, minute=59), "days", startDayPeriod)
                     startDate = utility.getdifferncedate(
-                        currentDate, "days", endDayPeriod)
+                        currentDate.replace(hour=00, minute=00), "days", endDayPeriod)
 
                     # get history
                     self.Log(
@@ -122,34 +124,27 @@ class HassPredictSwitch(hass.Hass):
             # cycle baseswitch history events
             self.Log(
                 f"history data to analyze: {len(baseswitch_historys)}", E_INFO)
-            for historyData in baseswitch_historys:
+            for baseSwitchHistory in baseswitch_historys:
                 historyDate = utility.convertdatatime(
-                    historyData['last_changed'])
-                historyState = historyData['state']
+                    baseSwitchHistory['last_changed'])
+                baseSwitchHistoryState = baseSwitchHistory['state']
 
-                # w=weekday|d=day|m=month|h=hour|i=minutes
-                dtcomponents = [
-                    {'w': historyDate.weekday()},
-                    {'d': historyDate.day},
-                    {'m': historyDate.month},
-                    {'h': historyDate.hour},
-                    {'i': historyDate.minute}
-                ]
+                # calculate period for state ON
+                if not 'periodon' in entityStates['bt']:
+                    # weekday (0-6)
+                    entityStates['bt']['periodon'] = {
+                        0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+                if baseSwitchHistoryState == "on" and isOnState['state'] == False:
+                    isOnState['state'] = True
+                    isOnState['datetime'] = historyDate.strftime(
+                        ONPERIOD_DATETIME_FORMAT)
+                if baseSwitchHistoryState == "off" and isOnState['state'] == True:
 
-                for dtcomponent in dtcomponents:
-                    k, v = list(dtcomponent.items())[0]
-
-                    if not historyState in entityStates['bt']:
-                        entityStates['bt'][historyState] = {}
-                    if not k in entityStates['bt'][historyState]:
-                        # m=min|x=max
-                        entityStates['bt'][historyState][k] = {
-                            'm': 999, 'x': 0}
-
-                    if v < entityStates['bt'][historyState][k]['m']:
-                        entityStates['bt'][historyState][k]['m'] = v
-                    if v > entityStates['bt'][historyState][k]['x']:
-                        entityStates['bt'][historyState][k]['x'] = v
+                    entityStates['bt']['periodon'][historyDate.weekday()].append(
+                        [isOnState['datetime'],
+                         historyDate.strftime(ONPERIOD_DATETIME_FORMAT)
+                         ])
+                    isOnState['state'] = False
 
                 # cycle basedon entities
                 for basedonEntity in config.Get(['predictsevent', event, 'basedon']):
