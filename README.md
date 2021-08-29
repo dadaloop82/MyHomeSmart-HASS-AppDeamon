@@ -4,6 +4,18 @@
 ### This is an idea under development (when I have free time)
 #### *I am Italian, sorry for any mistakes in English.*
 
+# I want to try it right now!
+**No, wait.**
+
+This is a program in Python that I'm making in my spare time and is currently unfinished.
+
+To try it and possibly contribute (thanks!) these are the ingredients:
+
+- knowledge of Python
+
+- a working instance of Home Assistant
+- the appDeamon addon correctly installed and running 
+
 # The idea (and the dream)
 My goal (and dream) is for Home Assistant to decide autonomously when it is appropriate to activate a certain event, based on the history of one or more switches, relating the date and time and the status of other sensors.
 Based on the calculations performed, if the level of certainty is high it could directly activate the switch, or if it is low (uncertain) it could ask through Alexa (Amazon) if you want to proceed with the activation and based on the answer given it could even modify its data model.
