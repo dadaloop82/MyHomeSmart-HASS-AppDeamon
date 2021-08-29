@@ -47,6 +47,13 @@ class HassPredictSwitch(hass.Hass):
                 return date - datetime.timedelta(days=value)
             return None
 
+        def stringisnumber(self, string):
+            try:
+                float(string)
+                return True
+            except:
+                return False
+
     # Config Class
 
     class Config:
@@ -82,6 +89,7 @@ class HassPredictSwitch(hass.Hass):
         # bo = basedOnEntities
         entityStates = {'bt': {}, 'bo': {}}
         baseswitch_historys = []
+        averageObject = {}
         isOnState = {'state': False, 'datetime': None}
 
         for event in config.Get('predictsevent'):
@@ -127,6 +135,11 @@ class HassPredictSwitch(hass.Hass):
             countMergeTimePeriod = {
                 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
             for baseSwitchHistory in baseswitch_historys:
+
+                ###############################################################
+                # BASE SWITCH ROUTINE
+                ###############################################################
+
                 historyDate = utility.convertdatatime(
                     baseSwitchHistory['last_changed'])
                 historyDateRounded = (historyDate - datetime.timedelta(
@@ -169,7 +182,7 @@ class HassPredictSwitch(hass.Hass):
                                 countMergeTimePeriod[historyDate.weekday(
                                 )] += 1
                                 self.Log(
-                                    f"merged: { countMergeTimePeriod[historyDate.weekday()]} ON period's in WD {historyDate.weekday()} in range {config.Get('mergeonperiodminutes')}min rounded by {config.Get('roundtimeevents')}min", E_INFO)
+                                    f"merged: { countMergeTimePeriod[historyDate.weekday()]} ON period's in WD {historyDate.weekday()} in range {config.Get('mergeonperiodminutes')}min rounded by {config.Get('roundtimeevents')}min", E_DEBUG)
 
                             if abs(offDateTimeDiffMin) < config.Get('mergeonperiodminutes') and offDateTimeDiffMin <= 0:
                                 entityStates['bt']['periodon'][historyDate.weekday(
@@ -178,7 +191,7 @@ class HassPredictSwitch(hass.Hass):
                                 countMergeTimePeriod[historyDate.weekday(
                                 )] += 1
                                 self.Log(
-                                    f"merged: { countMergeTimePeriod[historyDate.weekday()]} OFF period's in WD {historyDate.weekday()} in range {config.Get('mergeonperiodminutes')}min round by {config.Get('roundtimeevents')}min", E_INFO)
+                                    f"merged: { countMergeTimePeriod[historyDate.weekday()]} OFF period's in WD {historyDate.weekday()} in range {config.Get('mergeonperiodminutes')}min round by {config.Get('roundtimeevents')}min", E_DEBUG)
                             k += 1
 
                         if not foundMerge:
@@ -197,7 +210,10 @@ class HassPredictSwitch(hass.Hass):
 
                     isOnState['state'] = False
 
-                # cycle basedon entities
+                ###############################################################
+                # BASED ON ENTITIES ROUTINE
+                ###############################################################
+
                 for basedonEntity in config.Get(['predictsevent', event, 'basedon']):
                     # get entity history from period
                     st = historyDate - \
@@ -213,23 +229,50 @@ class HassPredictSwitch(hass.Hass):
                     if BasedOnEntityHistorys:
                         self.Log(
                             f"get {len(BasedOnEntityHistorys[0])} history items", E_DEBUG)
-                        # are avaibile a history for this period
-                        # entityStates = {}
 
+                        # are avaibile a history for this period
                         if not basedonEntity in entityStates['bo']:
                             # define a entitystates for this basedon_entity
                             entityStates['bo'][basedonEntity] = {}
 
                         for entity_history in BasedOnEntityHistorys[0]:
                             state = entity_history['state']
-                            if not state in entityStates['bo'][basedonEntity]:
-                                # define a entitystates for this state
-                                entityStates['bo'][basedonEntity][state] = {
-                                    'count': 0, 'probs': 0}
-                            # increment value
-                            entityStates['bo'][basedonEntity][state]['count'] += 1
-                            entityStates['bo'][basedonEntity][state]['probs'] = round((
-                                entityStates['bo'][basedonEntity][state]['count'] * 100)/len(baseswitch_historys), 2)
+
+                            if state in ['on', 'off'] or isinstance(state, str) and not utility.stringisnumber(state):
+                                ############################################################
+                                # BASEDONENTITY STATE ARE BOOLEAN OR STRING
+                                ############################################################
+                                entityStates['bo'][basedonEntity]['type'] = "string"
+                                if not state in entityStates['bo'][basedonEntity]:
+                                    # define a entitystates for this state
+                                    entityStates['bo'][basedonEntity][state] = {
+                                        'count': 0, 'probs': 0}
+                                # increment value
+                                entityStates['bo'][basedonEntity][state]['count'] += 1
+                                entityStates['bo'][basedonEntity][state]['probs'] = round((
+                                    entityStates['bo'][basedonEntity][state]['count'] * 100)/len(baseswitch_historys), 2)
+
+                            if utility.stringisnumber(state):
+                                ############################################################
+                                # BASEDONENTITY STATE ARE INTEGER OR FLOAT
+                                ###########################################################
+                                entityStates['bo'][basedonEntity]['type'] = "float"
+                                valueState = float(state)
+                                if not basedonEntity in averageObject:
+                                    averageObject[basedonEntity] = []
+                                averageObject[basedonEntity].append(valueState)
+
+                                if not 'min' in entityStates['bo'][basedonEntity]:
+                                    # define a entitystates for this state
+                                    entityStates['bo'][basedonEntity] = {
+                                        'min': valueState, 'max': valueState, 'average': valueState}
+                                else:
+                                    if valueState < entityStates['bo'][basedonEntity]['min']:
+                                        entityStates['bo'][basedonEntity]['min'] = valueState
+                                    if valueState > entityStates['bo'][basedonEntity]['max']:
+                                        entityStates['bo'][basedonEntity]['max'] = valueState
+                                    entityStates['bo'][basedonEntity]['average'] = round(0 if len(
+                                        averageObject[basedonEntity]) == 0 else sum(averageObject[basedonEntity])/len(averageObject[basedonEntity]), 2)
 
         # analyze data and create model
         self.Log(entityStates)
