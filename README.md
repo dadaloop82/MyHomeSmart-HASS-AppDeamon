@@ -8,6 +8,15 @@
 My goal (and dream) is for Home Assistant to decide autonomously when it is appropriate to activate a certain event, based on the history of one or more switches, relating the date and time and the status of other sensors.
 Based on the calculations performed, if the level of certainty is high it could directly activate the switch, or if it is low (uncertain) it could ask through Alexa (Amazon) if you want to proceed with the activation and based on the answer given it could even modify its data model.
 
+## Want to help? You are welcome!
+This is and shall be an open, free and non-profit project; the goal is to create an automated system to manage situations in HomeAssistant.
+
+**No one should and will ever make money from this project**.
+
+If you want to help me in any way (advice, code, etc...) you are welcome to do so and I really thank you very much!
+Use the tools that Github provides!
+
+
 ## Use case example
 
 - An automation is automatically created to start the robot vacuum cleaner when nobody is at home, the time slot is from 14:00 to 18:00, the balcony door is closed and the humidity is below 60%.
