@@ -134,6 +134,8 @@ class HassPredictSwitch(hass.Hass):
                 f"history data to analyze: {len(baseswitch_historys)}", E_INFO)
             countMergeTimePeriod = {
                 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+
+            maxBaseSwitchCountEvents = 0
             for baseSwitchHistory in baseswitch_historys:
 
                 ###############################################################
@@ -192,6 +194,12 @@ class HassPredictSwitch(hass.Hass):
                                 )] += 1
                                 self.Log(
                                     f"merged: { countMergeTimePeriod[historyDate.weekday()]} OFF period's in WD {historyDate.weekday()} in range {config.Get('mergeonperiodminutes')}min round by {config.Get('roundtimeevents')}min", E_DEBUG)
+
+                            if entityStates['bt']['periodon'][historyDate.weekday(
+                            )][k]['count'] > maxBaseSwitchCountEvents:
+                                maxBaseSwitchCountEvents = entityStates['bt']['periodon'][historyDate.weekday(
+                                )][k]['count']
+
                             k += 1
 
                         if not foundMerge:
@@ -274,11 +282,11 @@ class HassPredictSwitch(hass.Hass):
                                     entityStates['bo'][basedonEntity]['average'] = round(0 if len(
                                         averageObject[basedonEntity]) == 0 else sum(averageObject[basedonEntity])/len(averageObject[basedonEntity]), 2)
 
-            # filters the BaseSwitch periodOn data by excluding insignificant events
-            for weekday in range(0, len(countMergeTimePeriod.keys())):
-                if weekday in entityStates['bt']['periodon']:
-                    entityStates['bt']['periodon'][weekday] = [d for d in entityStates['bt']
-                                                               ['periodon'][weekday] if d['count'] >= config.Get('minimundatatimeslotcount')]
+            # # filters the BaseSwitch periodOn data by excluding insignificant events
+            # for weekday in range(0, len(countMergeTimePeriod.keys())):
+            #     if weekday in entityStates['bt']['periodon']:
+            #         entityStates['bt']['periodon'][weekday] = [d for d in entityStates['bt']['periodon']
+            #                                                    [weekday] if d['count'] <= int((d['count']*100)/maxBaseSwitchCountEvents)]
 
             # analyze data and create model
             self.Log(entityStates)

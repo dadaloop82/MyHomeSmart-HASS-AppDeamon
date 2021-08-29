@@ -47,7 +47,7 @@ Warning: all these automatic automations are based on actions already performed 
 - [x] (OP #2) Getting the history of all connected sensors 
 - [ ] Caching the history
 - [x] (OP #4) get time slot from the history of the based on sensors
-- [ ] (OP #5) Discard the data that are not satisfactory
+- [x] (OP #5) Filters the BaseSwitch periodOn data by excluding insignificant events
 - [ ] (OP #7) Save the model
 - [ ] (OP #8) Listen of variation on baseOnSensor
 - [ ] (OP #9) Send an event to Home Assistant with the potential switch
