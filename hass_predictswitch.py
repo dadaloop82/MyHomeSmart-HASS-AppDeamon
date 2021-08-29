@@ -274,5 +274,5 @@ class HassPredictSwitch(hass.Hass):
                                     entityStates['bo'][basedonEntity]['average'] = round(0 if len(
                                         averageObject[basedonEntity]) == 0 else sum(averageObject[basedonEntity])/len(averageObject[basedonEntity]), 2)
 
-        # analyze data and create model
-        self.Log(entityStates)
+            # analyze data and create model
+            self.Log(entityStates)

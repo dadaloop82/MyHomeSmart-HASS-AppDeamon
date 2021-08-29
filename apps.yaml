@@ -1,4 +1,5 @@
 predict_switch:
+  app_dir: HASS_AppDeamon_SwitchPredictor
   module: hass_predictswitch
   class: HassPredictSwitch
   plugin:
@@ -6,14 +7,27 @@ predict_switch:
   config:
     # period (in day) for get history data from now
     historyday: 30
-    # minutes to merge ON period
-    mergeonperiodminutes: 15
     # time range in minutes for analysing model of each basedon entities
     timerangehistoryseconds: 0
+    # minutes to merge ON period
+    mergeonperiodminutes: 30
+    # rounds baseentity time by minutes
+    roundtimeevents: 15
+    # minimun data for model creation
+    minimundatamodel: 3
     # timezone
     timezone: Europe/Rome
     # group of predict events [name of event|baseswitch|basedon]
     predictsevent:
-      torunningvacuum:
-        basewitch: switch.neato_botvac_arturo
-        basedon: [person.daniel_2, person.giuliana]
+      turontelevision:
+        basewitch: switch.samsung_8_series_50
+        basedon:
+          [
+            person.daniel_2,
+            person.giuliana,
+            sensor.temperatura_e_umidita_temperature_measurement,
+            sensor.temperatura_e_umidita_relative_humidity_measurement,
+          ]
+      # turonvacuum:
+      #   basewitch: switch.neato_botvac_arturo
+      #   basedon: [person.daniel_2, person.giuliana]
