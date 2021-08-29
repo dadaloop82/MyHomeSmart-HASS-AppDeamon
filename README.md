@@ -51,6 +51,9 @@ Warning: all these automatic automations are based on actions already performed 
 - [ ] (OP #7) Save the model
 - [ ] (OP #8) Listen of variation on baseOnSensor
 - [ ] (OP #9) Send an event to Home Assistant with the potential switch
+- [ ] Optimizing Code
+- [ ] Testing
+- [ ] more Testing :)
 
 # Operation diagram
 

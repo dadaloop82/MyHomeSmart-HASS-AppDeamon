@@ -274,5 +274,11 @@ class HassPredictSwitch(hass.Hass):
                                     entityStates['bo'][basedonEntity]['average'] = round(0 if len(
                                         averageObject[basedonEntity]) == 0 else sum(averageObject[basedonEntity])/len(averageObject[basedonEntity]), 2)
 
+            # filters the BaseSwitch periodOn data by excluding insignificant events
+            for weekday in range(0, len(countMergeTimePeriod.keys())):
+                if weekday in entityStates['bt']['periodon']:
+                    entityStates['bt']['periodon'][weekday] = [d for d in entityStates['bt']
+                                                               ['periodon'][weekday] if d['count'] >= config.Get('minimundatatimeslotcount')]
+
             # analyze data and create model
             self.Log(entityStates)
