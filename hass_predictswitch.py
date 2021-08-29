@@ -140,10 +140,52 @@ class HassPredictSwitch(hass.Hass):
                         ONPERIOD_DATETIME_FORMAT)
                 if baseSwitchHistoryState == "off" and isOnState['state'] == True:
 
-                    entityStates['bt']['periodon'][historyDate.weekday()].append(
-                        [isOnState['datetime'],
-                         historyDate.strftime(ONPERIOD_DATETIME_FORMAT)
-                         ])
+                    # group by similar hour
+                    if entityStates['bt']['periodon'][historyDate.weekday()]:
+                        k = 0
+                        foundMerge = False
+                        for isOnData in entityStates['bt']['periodon'][historyDate.weekday()]:
+
+                            onDateTimeDiffMin = int((datetime.datetime.strptime(
+                                isOnData['on'], "%H:%M") - datetime.datetime.strptime(isOnState['datetime'], "%H:%M")).total_seconds()/60)
+
+                            offDateTimeDiffMin = int((datetime.datetime.strptime(
+                                isOnData['off'], "%H:%M")-historyDate.replace(
+                                year=1900, month=1, day=1, second=0)).total_seconds()/60)
+
+                            if abs(onDateTimeDiffMin) < config.Get('mergeonperiodminutes') and onDateTimeDiffMin > 0:
+
+                                entityStates['bt']['periodon'][historyDate.weekday(
+                                )][k]['on'] = isOnState['datetime']
+                                entityStates['bt']['periodon'][historyDate.weekday(
+                                )][k]['count'] += 1
+                                entityStates['bt']['periodon'][historyDate.weekday(
+                                )][k]['probs'] = round((entityStates['bt']['periodon'][historyDate.weekday(
+                                )][k]['count']*100)/(config.Get('historyday')/7), 2)
+                                foundMerge = True
+
+                            if abs(offDateTimeDiffMin) < config.Get('mergeonperiodminutes') and offDateTimeDiffMin < 0:
+                                entityStates['bt']['periodon'][historyDate.weekday(
+                                )][k]['off'] = historyDate.strftime(ONPERIOD_DATETIME_FORMAT)
+                                foundMerge = True
+                            k += 1
+
+                        if not foundMerge:
+                            entityStates['bt']['periodon'][historyDate.weekday()].append(
+                                {"on": isOnState['datetime'],
+                                 "off": historyDate.strftime(ONPERIOD_DATETIME_FORMAT),
+                                 "probs": round((1*100)/(config.Get('historyday')/7), 2),
+                                 "count": 1
+                                 })
+
+                    else:
+                        entityStates['bt']['periodon'][historyDate.weekday()].append(
+                            {"on": isOnState['datetime'],
+                                "off": historyDate.strftime(ONPERIOD_DATETIME_FORMAT),
+                                "probs": round((1*100)/(config.Get('historyday')/7), 2),
+                                "count": 1
+                             })
+
                     isOnState['state'] = False
 
                 # cycle basedon entities

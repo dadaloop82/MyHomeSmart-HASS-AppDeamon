@@ -6,6 +6,8 @@ predict_switch:
   config:
     # period (in day) for get history data from now
     historyday: 30
+    # minutes to merge ON period
+    mergeonperiodminutes: 15
     # time range in minutes for analysing model of each basedon entities
     timerangehistoryseconds: 0
     # timezone
@@ -13,5 +15,5 @@ predict_switch:
     # group of predict events [name of event|baseswitch|basedon]
     predictsevent:
       torunningvacuum:
-        basewitch: switch.samsung_8_series_50
+        basewitch: switch.neato_botvac_arturo
         basedon: [person.daniel_2, person.giuliana]
