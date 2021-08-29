@@ -124,9 +124,13 @@ class HassPredictSwitch(hass.Hass):
             # cycle baseswitch history events
             self.Log(
                 f"history data to analyze: {len(baseswitch_historys)}", E_INFO)
+            countMergeTimePeriod = {
+                0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
             for baseSwitchHistory in baseswitch_historys:
                 historyDate = utility.convertdatatime(
                     baseSwitchHistory['last_changed'])
+                historyDateRounded = (historyDate - datetime.timedelta(
+                    minutes=historyDate.minute % config.Get('roundtimeevents')))
                 baseSwitchHistoryState = baseSwitchHistory['state']
 
                 # calculate period for state ON
@@ -134,10 +138,12 @@ class HassPredictSwitch(hass.Hass):
                     # weekday (0-6)
                     entityStates['bt']['periodon'] = {
                         0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+
                 if baseSwitchHistoryState == "on" and isOnState['state'] == False:
                     isOnState['state'] = True
-                    isOnState['datetime'] = historyDate.strftime(
+                    isOnState['datetime'] = historyDateRounded.strftime(
                         ONPERIOD_DATETIME_FORMAT)
+
                 if baseSwitchHistoryState == "off" and isOnState['state'] == True:
 
                     # group by similar hour
@@ -150,39 +156,42 @@ class HassPredictSwitch(hass.Hass):
                                 isOnData['on'], "%H:%M") - datetime.datetime.strptime(isOnState['datetime'], "%H:%M")).total_seconds()/60)
 
                             offDateTimeDiffMin = int((datetime.datetime.strptime(
-                                isOnData['off'], "%H:%M")-historyDate.replace(
+                                isOnData['off'], "%H:%M")-historyDateRounded.replace(
                                 year=1900, month=1, day=1, second=0)).total_seconds()/60)
 
-                            if abs(onDateTimeDiffMin) < config.Get('mergeonperiodminutes') and onDateTimeDiffMin > 0:
+                            if abs(onDateTimeDiffMin) < config.Get('mergeonperiodminutes') and onDateTimeDiffMin >= 0:
 
                                 entityStates['bt']['periodon'][historyDate.weekday(
                                 )][k]['on'] = isOnState['datetime']
                                 entityStates['bt']['periodon'][historyDate.weekday(
                                 )][k]['count'] += 1
-                                entityStates['bt']['periodon'][historyDate.weekday(
-                                )][k]['probs'] = round((entityStates['bt']['periodon'][historyDate.weekday(
-                                )][k]['count']*100)/(config.Get('historyday')/7), 2)
                                 foundMerge = True
+                                countMergeTimePeriod[historyDate.weekday(
+                                )] += 1
+                                self.Log(
+                                    f"merged: { countMergeTimePeriod[historyDate.weekday()]} ON period's in WD {historyDate.weekday()} in range {config.Get('mergeonperiodminutes')}min rounded by {config.Get('roundtimeevents')}min", E_INFO)
 
-                            if abs(offDateTimeDiffMin) < config.Get('mergeonperiodminutes') and offDateTimeDiffMin < 0:
+                            if abs(offDateTimeDiffMin) < config.Get('mergeonperiodminutes') and offDateTimeDiffMin <= 0:
                                 entityStates['bt']['periodon'][historyDate.weekday(
-                                )][k]['off'] = historyDate.strftime(ONPERIOD_DATETIME_FORMAT)
+                                )][k]['off'] = historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT)
                                 foundMerge = True
+                                countMergeTimePeriod[historyDate.weekday(
+                                )] += 1
+                                self.Log(
+                                    f"merged: { countMergeTimePeriod[historyDate.weekday()]} OFF period's in WD {historyDate.weekday()} in range {config.Get('mergeonperiodminutes')}min round by {config.Get('roundtimeevents')}min", E_INFO)
                             k += 1
 
                         if not foundMerge:
                             entityStates['bt']['periodon'][historyDate.weekday()].append(
                                 {"on": isOnState['datetime'],
-                                 "off": historyDate.strftime(ONPERIOD_DATETIME_FORMAT),
-                                 "probs": round((1*100)/(config.Get('historyday')/7), 2),
+                                 "off": historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT),
                                  "count": 1
                                  })
 
                     else:
                         entityStates['bt']['periodon'][historyDate.weekday()].append(
                             {"on": isOnState['datetime'],
-                                "off": historyDate.strftime(ONPERIOD_DATETIME_FORMAT),
-                                "probs": round((1*100)/(config.Get('historyday')/7), 2),
+                                "off": historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT),
                                 "count": 1
                              })
 
