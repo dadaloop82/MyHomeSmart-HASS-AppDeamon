@@ -4,7 +4,7 @@
 ### This is an idea under development (when I have free time)
 #### *I am Italian, sorry for any mistakes in English.*
 
-## The idea (and the dream)
+# The idea (and the dream)
 My goal (and dream) is for Home Assistant to decide autonomously when it is appropriate to activate a certain event, based on the history of one or more switches, relating the date and time and the status of other sensors.
 Based on the calculations performed, if the level of certainty is high it could directly activate the switch, or if it is low (uncertain) it could ask through Alexa (Amazon) if you want to proceed with the activation and based on the answer given it could even modify its data model.
 
@@ -17,7 +17,7 @@ If you want to help me in any way (advice, code, etc...) you are welcome to do s
 Use the tools that Github provides!
 
 
-## Use case example
+# Use case example
 
 - An automation is automatically created to start the robot vacuum cleaner when nobody is at home, the time slot is from 14:00 to 18:00, the balcony door is closed and the humidity is below 60%.
 
@@ -50,5 +50,31 @@ Warning: all these automatic automations are based on actions already performed 
 5. Discard the data that are not satisfactory or because they are too few (by config)
 6. Now have an overview of what triggered *basedOnSensor* to turn on, with the relevant time periods broken down by days of the week
 7. Save the model
-8. Listen to the variations of the *basedOnSensores* and compare them with the results of the model
+8. Listen to the variations of the *basedOnSensor* and compare them with the results of the model
 9. Send an event to Home Assistant with the potential switch to manage the probability of it happening. It will be in Home Assistant that will decide what to do, whether to activate the switch or ask the user if they want to activate it.
+
+# Features
+
+- Calculation of the reason for activating the *baseSwitch*
+- Calculation elements are the states of *basedOnSensor* that can be
+    - Boolean
+    - String
+    - Value (in this case the minimum, the maximum and the average is computed) 
+- Grouping of events into time slots and matching of similar time slots
+
+
+# Data Model Structure
+*(update at 29 August 2021)*
+
+
+
+    bt = baseSwitch Time Slot
+    bo = basedOnSensor state and calculated probability
+
+
+
+example:
+
+```
+[ {'bt': {'periodon': {0: [{'on': '12:30', 'off': '13:15', 'count': 1}, {'on': '18:30', 'off': '19:15', 'count': 1}, {'on': '20:30', 'off': '22:00', 'count': 1}], 1: [{'on': '12:15', 'off': '12:30', 'count': 1}, {'on': '16:15', 'off': '21:30', 'count': 1}], 2: [{'on': '19:30', 'off': '19:45', 'count': 1}, {'on': '20:30', 'off': '22:00', 'count': 1}], 3: [{'on': '13:15', 'off': '13:30', 'count': 2}, {'on': '12:15', 'off': '12:30', 'count': 1}, {'on': '18:15', 'off': '18:30', 'count': 1}, {'on': '19:30', 'off': '20:15', 'count': 1}, {'on': '20:30', 'off': '21:30', 'count': 1}], 4: [{'on': '12:15', 'off': '12:30', 'count': 1}, {'on': '15:45', 'off': '15:45', 'count': 1}, {'on': '16:00', 'off': '17:15', 'count': 1}, {'on': '18:15', 'off': '19:00', 'count': 1}, {'on': '07:30', 'off': '07:30', 'count': 2}, {'on': '11:30', 'off': '12:15', 'count': 1}, {'on': '15:00', 'off': '18:00', 'count': 1}], 5: [{'on': '18:00', 'off': '18:00', 'count': 1}, {'on': '20:45', 'off': '21:30', 'count': 2}, {'on': '21:30', 'off': '22:30', 'count': 2}, {'on': '09:15', 'off': '09:30', 'count': 1}, {'on': '13:00', 'off': '13:30', 'count': 1}], 6: [{'on': '08:45', 'off': '09:00', 'count': 1}, {'on': '16:15', 'off': '18:00', 'count': 1}, {'on': '09:30', 'off': '09:45', 'count': 1}, {'on': '13:30', 'off': '13:45', 'count': 1}]}}, 'bo': {'person.daniel_2': {'type': 'string', 'home': {'count': 72, 'probs': 92.31}, 'not_home': {'count': 6, 'probs': 7.69}}, 'person.giuliana': {'type': 'string', 'not_home': {'count': 27, 'probs': 34.62}, 'home': {'count': 51, 'probs': 65.38}}, 'sensor.temperatura_e_umidita_temperature_measurement': {'min': 22.88, 'max': 26.0, 'average': 24.16, 'type': 'float'}, 'sensor.temperatura_e_umidita_relative_humidity_measurement': {'min': 38.0, 'max': 69.5, 'average': 55.26, 'type': 'float'}}} ]
+```
