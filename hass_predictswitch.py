@@ -1,7 +1,8 @@
 import hassapi as hass
 import datetime
 from dateutil import tz
-import re
+import os
+import json
 
 
 # Constant
@@ -15,6 +16,11 @@ E_ERROR = "ERROR"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
 ALT_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f+00:00"
 ONPERIOD_DATETIME_FORMAT = "%H:%M"
+MODELPATH = "models"
+
+# Object
+_datetime = datetime.datetime
+_currentfolder = os.path.dirname(os.path.abspath(__file__))
 
 # HassPredictSwitch Class
 
@@ -36,10 +42,10 @@ class HassPredictSwitch(hass.Hass):
 
         def convertdatatime(self, datatimeString):
             if "." in datatimeString:
-                datatimeString = datetime.datetime.strptime(
+                datatimeString = _datetime.strptime(
                     datatimeString, ALT_DATETIME_FORMAT).strftime(DATETIME_FORMAT)
             a = self._hass.parse_utc_string(datatimeString)
-            b = datetime.datetime.utcfromtimestamp(a)
+            b = _datetime.utcfromtimestamp(a)
             return b
 
         def getdifferncedate(self, date, keytime, value):
@@ -109,11 +115,21 @@ class HassPredictSwitch(hass.Hass):
             # get history of baseswitch
             self.Log(f"ask baseSwitch: {baseswitch} history ", E_DEBUG)
 
+            # set currentDate
+            currentDate = _datetime.now()
+
+            # set the startDate of events
+            eventsHistoryStartDate = currentDate.strftime(DATETIME_FORMAT)
+
+            # set the endDate of events
+            eventsHistoryEndDate = utility.getdifferncedate(
+                currentDate.replace(hour=23, minute=59), "days", config.Get('historyday')).strftime(DATETIME_FORMAT)
+
             # check if request history time are more 10 days
             if(config.Get('historyday') > 10):
 
                 # for more 10 days
-                currentDate = datetime.datetime.now()
+
                 cycle = int(config.Get('historyday')/10)+1
                 for number in range(0, cycle):
 
@@ -136,6 +152,12 @@ class HassPredictSwitch(hass.Hass):
                         f"parsing and analyze history data (days: {startDayPeriod}/{endDayPeriod})", E_INFO)
                     history = self.get_history(
                         entity_id=baseswitch, start_time=startDate, end_time=endDate)
+
+                    #
+                    if not history:
+                        self.Log(
+                            f"no history provided for days: {startDayPeriod}/{endDayPeriod}", E_WARNING)
+                        break
 
                     # if this is a single day, the history is not array
                     if len(history) > 0:
@@ -212,11 +234,11 @@ class HassPredictSwitch(hass.Hass):
                         for isOnData in entityStates['bt']['periodon'][historyDate.weekday()]:
 
                             # calculate difference with ON time
-                            onDateTimeDiffMin = int((datetime.datetime.strptime(
-                                isOnData['on'], "%H:%M") - datetime.datetime.strptime(isOnStatePeriod['datetime'], "%H:%M")).total_seconds()/60)
+                            onDateTimeDiffMin = int((_datetime.strptime(
+                                isOnData['on'], "%H:%M") - _datetime.strptime(isOnStatePeriod['datetime'], "%H:%M")).total_seconds()/60)
 
                             # calculate difference with OFF time
-                            offDateTimeDiffMin = int((datetime.datetime.strptime(
+                            offDateTimeDiffMin = int((_datetime.strptime(
                                 isOnData['off'], "%H:%M")-historyDateRounded.replace(
                                 year=1900, month=1, day=1, second=0)).total_seconds()/60)
 
@@ -388,5 +410,15 @@ class HassPredictSwitch(hass.Hass):
             #         entityStates['bt']['periodon'][weekday] = [d for d in entityStates['bt']['periodon']
             #                                                    [weekday] if d['count'] <= int((d['count']*100)/maxBaseSwitchCountEvents)]
 
-            # analyze data and create model
-            self.Log(entityStates)
+            # add startdate and enddate to entityStates
+            entityStates['updatedate'] = [
+                eventsHistoryStartDate, eventsHistoryEndDate]
+
+            # convert to json and write on file
+            file = open(os.path.join(_currentfolder,
+                        MODELPATH, f"{event}.json"), "w")
+            file.write(json.dumps(entityStates))
+            file.close()
+
+            # logging
+            self.Log(f"model for {event} saved", E_INFO)
