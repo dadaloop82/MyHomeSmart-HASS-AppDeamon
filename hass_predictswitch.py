@@ -1,8 +1,10 @@
 import hassapi as hass
 import datetime
-from dateutil import tz
 import os
 import json
+
+from dateutil import tz
+from os.path import exists
 
 
 # Constant
@@ -21,7 +23,7 @@ MODELPATH = "models"
 # Object
 _datetime = datetime.datetime
 _currentfolder = os.path.dirname(os.path.abspath(__file__))
-
+_currentDate = _datetime.now()
 # HassPredictSwitch Class
 
 
@@ -106,54 +108,89 @@ class HassPredictSwitch(hass.Hass):
         baseswitch_historys = []
         averageObject = {}
         isOnStatePeriod = {'state': False, 'datetime': None}
+        isDataLoadedFromFile = False
+        dayHistory = config.Get('historyday')
 
         for event in config.Get('predictsevent'):
 
             # get baseswitch
             baseswitch = config.Get(['predictsevent', event, 'basewitch'])
 
-            # get history of baseswitch
-            self.Log(f"ask baseSwitch: {baseswitch} history ", E_DEBUG)
-
-            # set currentDate
-            currentDate = _datetime.now()
+            # check if model is already saved
+            fileName = os.path.join(_currentfolder, MODELPATH, f"{event}.json")
 
             # set the startDate of events
-            eventsHistoryStartDate = currentDate.strftime(DATETIME_FORMAT)
+            eventsHistoryStartDate = _currentDate
 
             # set the endDate of events
             eventsHistoryEndDate = utility.getdifferncedate(
-                currentDate.replace(hour=23, minute=59), "days", config.Get('historyday')).strftime(DATETIME_FORMAT)
+                _currentDate.replace(hour=23, minute=59), "days", dayHistory)
 
-            # check if request history time are more 10 days
-            if(config.Get('historyday') > 10):
+            if exists(fileName):
 
-                # for more 10 days
+                # if the file exist, read the json data (model)
+                self.Log(f"<{event}> model already exist - load and use them ")
+                fileEventCached = open(fileName,)
 
-                cycle = int(config.Get('historyday')/10)+1
-                for number in range(0, cycle):
+                # put the data on entityStates variable
+                entityStates = json.load(fileEventCached)
 
-                    # calculate start and end period
-                    startDayPeriod = number*10
-                    endDayPeriod = startDayPeriod+10
+                # close file
+                fileEventCached.close()
 
-                    # if exceed, get the value in config
-                    if endDayPeriod > config.Get('historyday'):
-                        endDayPeriod = config.Get('historyday')
+                # set the savedModelEventsHistoryStartDate|EndDate and the flag in isDataLoadedFromFile
+                savedModelEventsHistoryEndDate = _datetime.strptime(
+                    entityStates['updatedate'][0], DATETIME_FORMAT)
+                savedModelEventsHistoryStartDate = _datetime.strptime(
+                    entityStates['updatedate'][1], DATETIME_FORMAT)
+                isDataLoadedFromFile = True
 
-                    # calculate date
-                    endDate = utility.getdifferncedate(
-                        currentDate.replace(hour=23, minute=59), "days", startDayPeriod)
-                    startDate = utility.getdifferncedate(
-                        currentDate.replace(hour=00, minute=00), "days", endDayPeriod)
+            # get history of baseswitch
+            self.Log(f"ask baseSwitch: {baseswitch} history ", E_DEBUG)
+
+            # calculate che number of cycles
+            cycle = int(dayHistory/10)+1
+
+            # start cycle
+            for number in range(0, cycle):
+
+                # calculate start and end period
+                startDayPeriod = number*10
+                endDayPeriod = startDayPeriod+10
+
+                # if exceed, get the value in config
+                if endDayPeriod > dayHistory:
+                    endDayPeriod = dayHistory
+
+                # calculate date
+                endDate = utility.getdifferncedate(
+                    _currentDate.replace(hour=23, minute=59), "days", startDayPeriod)
+                startDate = utility.getdifferncedate(
+                    _currentDate.replace(hour=00, minute=00), "days", endDayPeriod)
+
+                self.Log(f"Date requested: {startDate} - {endDate}", E_DEBUG)
+                self.Log(
+                    f"Date cached: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
+
+                # if is file loaded, check if the startDate are NOT between the already laoaded data
+                if(isDataLoadedFromFile and startDate > savedModelEventsHistoryStartDate):
+                    startDate = savedModelEventsHistoryEndDate
+
+                # check if startDate is greater than enDate -> the data must be loaded from file
+                if startDate >= endDate:
+                    self.Log(
+                        f"data from cache: {startDayPeriod}/{endDayPeriod}", E_INFO)
+
+                else:
 
                     # get history for this timeslot
                     self.Log(
                         f"parsing and analyze history data (days: {startDayPeriod}/{endDayPeriod})", E_INFO)
+
                     history = self.get_history(
                         entity_id=baseswitch, start_time=startDate, end_time=endDate)
 
-                    #
+                    # no history for this time period
                     if not history:
                         self.Log(
                             f"no history provided for days: {startDayPeriod}/{endDayPeriod}", E_WARNING)
@@ -166,14 +203,7 @@ class HassPredictSwitch(hass.Hass):
                     # append all to historys
                     baseswitch_historys = baseswitch_historys + history
 
-            else:
-
-                # for 10 days or below
-                self.Log(f"parsing and analyze history data (1 cycle)", E_INFO)
-
-                # get history with one call
-                baseswitch_historys = self.get_history(
-                    entity_id=baseswitch, days=config.Get('historyday'))[0]
+            break
 
             # cycle baseswitch history events
             self.Log(
@@ -412,13 +442,13 @@ class HassPredictSwitch(hass.Hass):
 
             # add startdate and enddate to entityStates
             entityStates['updatedate'] = [
-                eventsHistoryStartDate, eventsHistoryEndDate]
+                eventsHistoryStartDate.strftime(DATETIME_FORMAT), eventsHistoryEndDate.strftime(DATETIME_FORMAT)]
 
             # convert to json and write on file
-            file = open(os.path.join(_currentfolder,
-                        MODELPATH, f"{event}.json"), "w")
-            file.write(json.dumps(entityStates))
-            file.close()
+            fileEventSave = open(os.path.join(_currentfolder,
+                                              MODELPATH, f"{event}.json"), "w")
+            fileEventSave.write(json.dumps(entityStates))
+            fileEventSave.close()
 
             # logging
-            self.Log(f"model for {event} saved", E_INFO)
+            self.Log(f"model for <{event}> saved", E_INFO)
