@@ -8,11 +8,13 @@ from os.path import exists
 
 
 # Constant
-# E_DEBUG = "INFO"
+#E_DEBUG = "INFO"
 E_DEBUG = "DEBUG"
 E_INFO = "INFO"
 E_WARNING = "WARNING"
 E_ERROR = "ERROR"
+
+CONST_WEEKDAY = ["sun", 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
 # 2021-08-20T14:43:40+00:00
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S+00:00"
@@ -68,6 +70,9 @@ class HassPredictSwitch(hass.Hass):
             objvar[key] = initvalue
             return objvar
 
+        def getWeekDayName(self, weekday):
+            return CONST_WEEKDAY[weekday]
+
     # Config Class
 
     class Config:
@@ -109,7 +114,8 @@ class HassPredictSwitch(hass.Hass):
         averageObject = {}
         isOnStatePeriod = {'state': False, 'datetime': None}
         isDataLoadedFromFile = False
-        dayHistory = config.Get('historyday')
+        dayHistoryPeriod = config.Get('historyday')
+        firstDateWithNoHistory = _currentDate
 
         for event in config.Get('predictsevent'):
 
@@ -119,13 +125,6 @@ class HassPredictSwitch(hass.Hass):
             # check if model is already saved
             fileName = os.path.join(_currentfolder, MODELPATH, f"{event}.json")
 
-            # set the startDate of events
-            eventsHistoryStartDate = _currentDate
-
-            # set the endDate of events
-            eventsHistoryEndDate = utility.getdifferncedate(
-                _currentDate.replace(hour=23, minute=59), "days", dayHistory)
-
             if exists(fileName):
 
                 # if the file exist, read the json data (model)
@@ -134,9 +133,6 @@ class HassPredictSwitch(hass.Hass):
 
                 # put the data on entityStates variable
                 entityStates = json.load(fileEventCached)
-
-                # close file
-                fileEventCached.close()
 
                 # set the savedModelEventsHistoryStartDate|EndDate and the flag in isDataLoadedFromFile
                 savedModelEventsHistoryEndDate = _datetime.strptime(
@@ -149,7 +145,7 @@ class HassPredictSwitch(hass.Hass):
             self.Log(f"ask baseSwitch: {baseswitch} history ", E_DEBUG)
 
             # calculate che number of cycles
-            cycle = int(dayHistory/10)+1
+            cycle = int(dayHistoryPeriod/10)+1
 
             # start cycle
             for number in range(0, cycle):
@@ -159,33 +155,34 @@ class HassPredictSwitch(hass.Hass):
                 endDayPeriod = startDayPeriod+10
 
                 # if exceed, get the value in config
-                if endDayPeriod > dayHistory:
-                    endDayPeriod = dayHistory
+                if endDayPeriod > dayHistoryPeriod:
+                    endDayPeriod = dayHistoryPeriod
 
                 # calculate date
                 endDate = utility.getdifferncedate(
-                    _currentDate.replace(hour=23, minute=59), "days", startDayPeriod)
+                    _currentDate.replace(hour=23, minute=59, second=00, microsecond=00), "days", startDayPeriod)
                 startDate = utility.getdifferncedate(
-                    _currentDate.replace(hour=00, minute=00), "days", endDayPeriod)
+                    _currentDate.replace(hour=00, minute=00, second=00, microsecond=00), "days", endDayPeriod)
 
-                self.Log(f"Date requested: {startDate} - {endDate}", E_DEBUG)
-                self.Log(
-                    f"Date cached: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
+                if isDataLoadedFromFile:
+                    self.Log(
+                        f"Date requested: {startDate} - {endDate}", E_DEBUG)
+                    self.Log(
+                        f"Date cached: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
 
                 # if is file loaded, check if the startDate are NOT between the already laoaded data
-                if(isDataLoadedFromFile and startDate > savedModelEventsHistoryStartDate):
+                if(isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate):
                     startDate = savedModelEventsHistoryEndDate
 
                 # check if startDate is greater than enDate -> the data must be loaded from file
-                if startDate >= endDate:
+                if startDate >= endDate or (endDate-startDate).days == 0:
                     self.Log(
-                        f"data from cache: {startDayPeriod}/{endDayPeriod}", E_INFO)
+                        f"load data from cache: {startDayPeriod}/{endDayPeriod}", E_INFO)
 
                 else:
-
                     # get history for this timeslot
                     self.Log(
-                        f"parsing and analyze history data (days: {startDayPeriod}/{endDayPeriod})", E_INFO)
+                        f"ask history data for day {startDayPeriod}/{endDayPeriod} )", E_INFO)
 
                     history = self.get_history(
                         entity_id=baseswitch, start_time=startDate, end_time=endDate)
@@ -193,7 +190,9 @@ class HassPredictSwitch(hass.Hass):
                     # no history for this time period
                     if not history:
                         self.Log(
-                            f"no history provided for days: {startDayPeriod}/{endDayPeriod}", E_WARNING)
+                            f"no history provided from {startDayPeriod} days ago", E_WARNING)
+                        if not firstDateWithNoHistory:
+                            firstDateWithNoHistory = endDate
                         break
 
                     # if this is a single day, the history is not array
@@ -203,19 +202,25 @@ class HassPredictSwitch(hass.Hass):
                     # append all to historys
                     baseswitch_historys = baseswitch_historys + history
 
-            break
-
             # cycle baseswitch history events
-            self.Log(
-                f"history data to analyze: {len(baseswitch_historys)}", E_INFO)
+            if not isDataLoadedFromFile:
+                self.Log(
+                    f"history data to analyze NEW: {len(baseswitch_historys)}", E_INFO)
+            else:
+                self.Log(
+                    f"history data to analyze UPDATE: {len(baseswitch_historys)}", E_INFO)
+
+            # add startdate and enddate to entityStates
+            startData = _currentDate.replace(
+                hour=23, minute=59, second=00, microsecond=00).strftime(DATETIME_FORMAT)
+            endData = endDate.replace(
+                hour=00, minute=00, second=00, microsecond=00).strftime(DATETIME_FORMAT) if firstDateWithNoHistory else firstDateWithNoHistory.strftime(
+                DATETIME_FORMAT)
+            entityStates['updatedate'] = [startData, endData]
 
             # set and reset the counter of merged time period
             countMergeTimePeriod = {
-                0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
-
-            # set and reset the maximum value of baseSwitch status event
-            # << temp. disabled >>
-            # maxBaseSwitchCountEvents = 0
+                CONST_WEEKDAY[0]: 0, CONST_WEEKDAY[1]: 0, CONST_WEEKDAY[2]: 0, CONST_WEEKDAY[3]: 0, CONST_WEEKDAY[4]: 0, CONST_WEEKDAY[5]: 0, CONST_WEEKDAY[6]: 0}
 
             for baseSwitchHistory in baseswitch_historys:
 
@@ -235,8 +240,9 @@ class HassPredictSwitch(hass.Hass):
                 baseSwitchHistoryState = baseSwitchHistory['state']
 
                 # set the weekDay object if not already setted
+
                 entityStates['bt'] = utility.setifnotexist(
-                    entityStates['bt'], 'periodon', {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: []})
+                    entityStates['bt'], 'periodon', {CONST_WEEKDAY[0]: [], CONST_WEEKDAY[1]: [], CONST_WEEKDAY[2]: [], CONST_WEEKDAY[3]: [], CONST_WEEKDAY[4]: [], CONST_WEEKDAY[5]: [], CONST_WEEKDAY[6]: []})
 
                 # if the state are ON and we are not already onStatePeriod (on-off)
                 if baseSwitchHistoryState == "on" and isOnStatePeriod['state'] == False:
@@ -252,7 +258,7 @@ class HassPredictSwitch(hass.Hass):
                 if baseSwitchHistoryState == "off" and isOnStatePeriod['state'] == True:
 
                     # merge this period if are the same or similar by config
-                    if entityStates['bt']['periodon'][historyDate.weekday()]:
+                    if entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday())]:
 
                         # set the Count of array
                         kCount = 0
@@ -261,7 +267,7 @@ class HassPredictSwitch(hass.Hass):
                         foundMerge = False
 
                         # cycle all period for search similarity
-                        for isOnData in entityStates['bt']['periodon'][historyDate.weekday()]:
+                        for isOnData in entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday())]:
 
                             # calculate difference with ON time
                             onDateTimeDiffMin = int((_datetime.strptime(
@@ -276,46 +282,41 @@ class HassPredictSwitch(hass.Hass):
                             if abs(onDateTimeDiffMin) < config.Get('mergeonperiodminutes'):
 
                                 # replace the ON time
-                                entityStates['bt']['periodon'][historyDate.weekday(
-                                )][kCount]['on'] = isOnStatePeriod['datetime']
+                                entityStates['bt']['periodon'][utility.getWeekDayName(
+                                    historyDate.weekday())][kCount]['on'] = isOnStatePeriod['datetime']
 
                                 # increment the counter
-                                entityStates['bt']['periodon'][historyDate.weekday(
-                                )][kCount]['count'] += 1
+                                entityStates['bt']['periodon'][utility.getWeekDayName(
+                                    historyDate.weekday())][kCount]['count'] += 1
 
                                 # set the found to merge boolean True
                                 foundMerge = True
 
                                 # increment the mergedTimePeriod counter
-                                countMergeTimePeriod[historyDate.weekday(
-                                )] += 1
+                                countMergeTimePeriod[utility.getWeekDayName(
+                                    historyDate.weekday())] += 1
 
                                 # logging
                                 self.Log(
-                                    f"merged ON period wD{historyDate.weekday()}: {isOnData['on']} with {isOnStatePeriod['datetime']} (count:{len(entityStates['bt']['periodon'][historyDate.weekday()])})", E_DEBUG)
+                                    f"merged ON period wD{utility.getWeekDayName(historyDate.weekday())}: {isOnData['on']} with {isOnStatePeriod['datetime']} (count:{len(entityStates['bt']['periodon'][CONST_WEEKDAY[historyDate.weekday()]])})", E_DEBUG)
 
                             # if absolute value of difference are below of config value and are greaters than 0
                             if abs(offDateTimeDiffMin) < config.Get('mergeonperiodminutes'):
 
                                 # replace the OFF time
-                                entityStates['bt']['periodon'][historyDate.weekday(
-                                )][kCount]['off'] = historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT)
+                                entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday(
+                                ))][kCount]['off'] = historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT)
 
                                 # set the found to merge boolean True
                                 foundMerge = True
 
                                 # increment the mergedTimePeriod counter
-                                countMergeTimePeriod[historyDate.weekday(
-                                )] += 1
+                                countMergeTimePeriod[utility.getWeekDayName(
+                                    historyDate.weekday())] += 1
 
                                 # logging
                                 self.Log(
-                                    f"merged OFF period wD{historyDate.weekday()}: {isOnData['off']} with {historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT)} (count:{len(entityStates['bt']['periodon'][historyDate.weekday()])})", E_DEBUG)
-
-                            # if entityStates['bt']['periodon'][historyDate.weekday(
-                            # )][k]['count'] > maxBaseSwitchCountEvents:
-                            #     maxBaseSwitchCountEvents = entityStates['bt']['periodon'][historyDate.weekday(
-                            #     )][k]['count']
+                                    f"merged OFF period wD{utility.getWeekDayName(historyDate.weekday())}: {isOnData['off']} with {historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT)} (count:{len(entityStates['bt']['periodon'][CONST_WEEKDAY[historyDate.weekday()]])})", E_DEBUG)
 
                             # increment counter
                             kCount += 1
@@ -323,7 +324,7 @@ class HassPredictSwitch(hass.Hass):
                         if not foundMerge:
 
                             # if not found to merge, simply append as new
-                            entityStates['bt']['periodon'][historyDate.weekday()].append(
+                            entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday())].append(
                                 {"on": isOnStatePeriod['datetime'],
                                  "off": historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT),
                                  "count": 1
@@ -332,7 +333,7 @@ class HassPredictSwitch(hass.Hass):
                     else:
 
                         # if not found to merge, simply append as new
-                        entityStates['bt']['periodon'][historyDate.weekday()].append(
+                        entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday())].append(
                             {"on": isOnStatePeriod['datetime'],
                                 "off": historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT),
                                 "count": 1
@@ -390,15 +391,15 @@ class HassPredictSwitch(hass.Hass):
 
                                 # init the object if is'nt initied
                                 entityStates['bo'][basedonEntity] = utility.setifnotexist(
-                                    entityStates['bo'][basedonEntity], state, {'count': 0, 'probs': 0})
+                                    entityStates['bo'][basedonEntity], state, {'count': 0})
 
                                 # increment value of this state hits
                                 entityStates['bo'][basedonEntity][state]['count'] += 1
 
                                 # calculate the probability
                                 # (count of this state * 100)/lenght of history of base switchg
-                                entityStates['bo'][basedonEntity][state]['probs'] = round((
-                                    entityStates['bo'][basedonEntity][state]['count'] * 100)/len(baseswitch_historys), 2)
+                                # entityStates['bo'][basedonEntity][state]['probs'] = round((
+                                #     entityStates['bo'][basedonEntity][state]['count'] * 100)/len(baseswitch_historys), 2)
 
                             if utility.stringisnumber(state):
                                 ############################################################
@@ -425,30 +426,32 @@ class HassPredictSwitch(hass.Hass):
                                     entityStates['bo'][basedonEntity], 'max', valueState)
                                 entityStates['bo'][basedonEntity] = utility.setifnotexist(
                                     entityStates['bo'][basedonEntity], 'average', valueState)
+                                entityStates['bo'][basedonEntity] = utility.setifnotexist(
+                                    entityStates['bo'][basedonEntity], 'count', 0)
 
                                 # calculate the min, the max and the average
                                 if valueState < entityStates['bo'][basedonEntity]['min']:
                                     entityStates['bo'][basedonEntity]['min'] = valueState
                                 if valueState > entityStates['bo'][basedonEntity]['max']:
                                     entityStates['bo'][basedonEntity]['max'] = valueState
-                                entityStates['bo'][basedonEntity]['average'] = round(0 if len(
-                                    averageObject[basedonEntity]) == 0 else sum(averageObject[basedonEntity])/len(averageObject[basedonEntity]), 2)
+                                entityStates['bo'][basedonEntity]['count'] += 1
+                                entityStates['bo'][basedonEntity]['average'] = round((
+                                    entityStates['bo'][basedonEntity]['min']+entityStates['bo'][basedonEntity]['max'])/2, 2)
 
-            # # filters the BaseSwitch periodOn data by excluding insignificant events
-            # for weekday in range(0, len(countMergeTimePeriod.keys())):
-            #     if weekday in entityStates['bt']['periodon']:
-            #         entityStates['bt']['periodon'][weekday] = [d for d in entityStates['bt']['periodon']
-            #                                                    [weekday] if d['count'] <= int((d['count']*100)/maxBaseSwitchCountEvents)]
+            if isDataLoadedFromFile:
+              # close the file is are opened
+                fileEventCached.close()
 
-            # add startdate and enddate to entityStates
-            entityStates['updatedate'] = [
-                eventsHistoryStartDate.strftime(DATETIME_FORMAT), eventsHistoryEndDate.strftime(DATETIME_FORMAT)]
+            if len(baseswitch_historys):
+                # convert to json and write on file
+                fileEventSave = open(os.path.join(_currentfolder,
+                                                  MODELPATH, f"{event}.json"), "w")
+                fileEventSave.write(json.dumps(entityStates))
+                fileEventSave.close()
 
-            # convert to json and write on file
-            fileEventSave = open(os.path.join(_currentfolder,
-                                              MODELPATH, f"{event}.json"), "w")
-            fileEventSave.write(json.dumps(entityStates))
-            fileEventSave.close()
+                if isDataLoadedFromFile:
+                    self.Log(f"model for <{event}> UPDATED", E_INFO)
+                else:
+                    self.Log(f"model for <{event}> CREATED  ", E_INFO)
 
-            # logging
-            self.Log(f"model for <{event}> saved", E_INFO)
+            print("D", entityStates)
