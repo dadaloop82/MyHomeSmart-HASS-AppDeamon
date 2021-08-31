@@ -318,6 +318,13 @@ class HassPredictSwitch(hass.Hass):
                                 self.Log(
                                     f"merged OFF period wD{utility.getWeekDayName(historyDate.weekday())}: {isOnData['off']} with {historyDateRounded.strftime(ONPERIOD_DATETIME_FORMAT)} (count:{len(entityStates['bt']['periodon'][CONST_WEEKDAY[historyDate.weekday()]])})", E_DEBUG)
 
+                            # if on element is same off element, delete data
+                            if entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday(
+                            ))][kCount]['off'] == entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday(
+                            ))][kCount]['on']:
+                                entityStates['bt']['periodon'][utility.getWeekDayName(historyDate.weekday(
+                                ))].pop(kCount)
+
                             # increment counter
                             kCount += 1
 
