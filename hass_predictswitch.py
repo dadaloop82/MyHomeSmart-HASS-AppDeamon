@@ -1,5 +1,6 @@
 import hassapi as hass
 import datetime
+import time
 import os
 import json
 
@@ -128,7 +129,7 @@ class HassPredictSwitch(hass.Hass):
             if exists(fileName):
 
                 # if the file exist, read the json data (model)
-                self.Log(f"<{event}> model already exist - load and use them ")
+                self.Log(f"{event}: model already exist - load and use them ")
                 fileEventCached = open(fileName,)
 
                 # put the data on entityStates variable
@@ -166,23 +167,26 @@ class HassPredictSwitch(hass.Hass):
 
                 if isDataLoadedFromFile:
                     self.Log(
-                        f"Date requested: {startDate} - {endDate}", E_DEBUG)
+                        f"{event}: Date requested: {startDate} - {endDate}", E_DEBUG)
                     self.Log(
-                        f"Date cached: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
+                        f"{event}: Date cached: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
 
                 # if is file loaded, check if the startDate are NOT between the already laoaded data
                 if(isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate):
                     startDate = savedModelEventsHistoryEndDate
 
+                    self.Log(
+                        f"{event}: Date calculated: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_INFO)
+
                 # check if startDate is greater than enDate -> the data must be loaded from file
                 if startDate >= endDate or (endDate-startDate).days == 0:
                     self.Log(
-                        f"load data from cache: {startDayPeriod}/{endDayPeriod}", E_INFO)
+                        f"{event}: load data from cache: {startDayPeriod}/{endDayPeriod}", E_INFO)
 
                 else:
                     # get history for this timeslot
                     self.Log(
-                        f"ask history data for day {startDayPeriod}/{endDayPeriod} )", E_INFO)
+                        f"{event}: ask history data for day {startDayPeriod}/{endDayPeriod} )", E_INFO)
 
                     history = self.get_history(
                         entity_id=baseswitch, start_time=startDate, end_time=endDate)
@@ -190,7 +194,7 @@ class HassPredictSwitch(hass.Hass):
                     # no history for this time period
                     if not history:
                         self.Log(
-                            f"no history provided from {startDayPeriod} days ago", E_WARNING)
+                            f"{event}: no history provided from {startDayPeriod} days ago", E_WARNING)
                         if not firstDateWithNoHistory:
                             firstDateWithNoHistory = endDate
                         break
@@ -205,23 +209,26 @@ class HassPredictSwitch(hass.Hass):
             # cycle baseswitch history events
             if not isDataLoadedFromFile:
                 self.Log(
-                    f"history data to analyze NEW: {len(baseswitch_historys)}", E_INFO)
+                    f"{event}: history data to analyze NEW: {len(baseswitch_historys)}", E_INFO)
             else:
                 self.Log(
-                    f"history data to analyze UPDATE: {len(baseswitch_historys)}", E_INFO)
+                    f"{event}: history data to analyze UPDATE: {len(baseswitch_historys)}", E_INFO)
 
             # add startdate and enddate to entityStates
-            startData = _currentDate.replace(
-                hour=23, minute=59, second=00, microsecond=00).strftime(DATETIME_FORMAT)
-            endData = endDate.replace(
-                hour=00, minute=00, second=00, microsecond=00).strftime(DATETIME_FORMAT) if firstDateWithNoHistory else firstDateWithNoHistory.strftime(
-                DATETIME_FORMAT)
-            entityStates['updatedate'] = [startData, endData]
+            # startData = _currentDate.replace(
+            #     hour=23, minute=59, second=00, microsecond=00).strftime(DATETIME_FORMAT)
+            # endData = endDate.replace(
+            #     hour=00, minute=00, second=00, microsecond=00).strftime(DATETIME_FORMAT) if firstDateWithNoHistory else firstDateWithNoHistory.strftime(
+            #     DATETIME_FORMAT)
+            entityStates['updatedate'] = [_currentDate.strftime(DATETIME_FORMAT), (
+                endDate if firstDateWithNoHistory else firstDateWithNoHistory).replace(hour=00, minute=00, second=00, microsecond=00).strftime(DATETIME_FORMAT)]
 
             # set and reset the counter of merged time period
             countMergeTimePeriod = {
                 CONST_WEEKDAY[0]: 0, CONST_WEEKDAY[1]: 0, CONST_WEEKDAY[2]: 0, CONST_WEEKDAY[3]: 0, CONST_WEEKDAY[4]: 0, CONST_WEEKDAY[5]: 0, CONST_WEEKDAY[6]: 0}
 
+            self.Log(f"{event}: analyzing history and create model ...", E_INFO)
+            startAnalyzingTime = time.time()
             for baseSwitchHistory in baseswitch_historys:
 
                 ###############################################################
@@ -457,8 +464,10 @@ class HassPredictSwitch(hass.Hass):
                 fileEventSave.close()
 
                 if isDataLoadedFromFile:
-                    self.Log(f"model for <{event}> UPDATED", E_INFO)
+                    self.Log(f"{event}: model UPDATED", E_INFO)
                 else:
-                    self.Log(f"model for <{event}> CREATED  ", E_INFO)
+                    self.Log(f"{event}: model CREATED  ", E_INFO)
 
-            print("D", entityStates)
+            self.Log(
+                f"{event}: analyzed model for in {round((time.time())-startAnalyzingTime,2)} sec.", E_INFO)
+            print(entityStates)
