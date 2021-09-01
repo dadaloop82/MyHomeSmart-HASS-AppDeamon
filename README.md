@@ -92,6 +92,12 @@ Warning: all these automatic automations are based on actions already performed 
     - season
 
 - Grouping of events into time slots and matching of similar time slots
+
+- Save and restore model when date/time range are the same or contained in them
+
+- Refactor model when single event config are changed (*baseSwitch* or *basedOnSensor*)
+
+
     
 
 
