@@ -24,6 +24,8 @@ Based on the calculations performed, if the level of certainty is high it could 
 
 ## Want to help? You are welcome!
 This is and shall be an open, free and non-profit project; the goal is to create an automated system to manage situations in HomeAssistant.
+Or, if you want to thank me for what I do by buying me a coffee:
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
 **No one should and will ever make money from this project**.
 
