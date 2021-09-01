@@ -1,5 +1,7 @@
 # Home Assistant AppDeamon  - Event predictor
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
+
 ### **WORK IN PROGRESS - CURRENTLY NOT COMPLETE AND NOT WORK**
 ### This is an idea under development (when I have free time)
 #### *I am Italian, sorry for any mistakes in English.*
