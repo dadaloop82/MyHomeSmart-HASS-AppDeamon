@@ -125,7 +125,7 @@ class HassPredictSwitch(hass.Hass):
         # set Variables
         # bt = baseentity
         # bo = basedOnEntities
-        entityStates = {'bt': {'periodon': [], 'maxcount': 0}, 'bo': {}}
+        entityStates = {'bt': {'timeslot': [], 'TSmaxcount': 0}, 'bo': {}}
         baseswitch_historys = []
         averageObject = {}
         OnStatePeriod = {'start': None, 'end': None}
@@ -298,7 +298,7 @@ class HassPredictSwitch(hass.Hass):
                     # check for period's merge
                     k = 0
                     merged = False
-                    for periodOn in entityStates['bt']['periodon']:
+                    for periodOn in entityStates['bt']['timeslot']:
 
                         if periodOn[3] != historyDate.weekday() and periodOn[4] != utility.getSeasonByDate(historyDate) and OnStatePeriod['start'] == OnStatePeriod['end']:
                             k += 1
@@ -313,25 +313,25 @@ class HassPredictSwitch(hass.Hass):
                             (timePeriod[1] - OnStatePeriod['end']).total_seconds()/60)
 
                         if abs(diffStart) < config.Get('mergeonperiodminutes'):
-                            entityStates['bt']['periodon'][k][1] = OnStatePeriod['start'].strftime(
+                            entityStates['bt']['timeslot'][k][1] = OnStatePeriod['start'].strftime(
                                 ONPERIOD_DATETIME_FORMAT)
                             merged = True
 
                         if abs(diffEnd) < config.Get('mergeonperiodminutes'):
-                            entityStates['bt']['periodon'][k][2] = OnStatePeriod['end'].strftime(
+                            entityStates['bt']['timeslot'][k][2] = OnStatePeriod['end'].strftime(
                                 ONPERIOD_DATETIME_FORMAT)
                             merged = True
 
                         if merged:
-                            entityStates['bt']['periodon'][k][0] += 1
-                            if entityStates['bt']['periodon'][k][0] > entityStates['bt']['maxcount']:
-                                entityStates['bt']['maxcount'] = entityStates['bt']['periodon'][k][0]
+                            entityStates['bt']['timeslot'][k][0] += 1
+                            if entityStates['bt']['timeslot'][k][0] > entityStates['bt']['TSmaxcount']:
+                                entityStates['bt']['TSmaxcount'] = entityStates['bt']['timeslot'][k][0]
 
                         k += 1
 
                     # save period on array
                     if not merged:
-                        entityStates['bt']['periodon'].append(
+                        entityStates['bt']['timeslot'].append(
                             [
                                 # count
                                 0,
@@ -450,6 +450,16 @@ class HassPredictSwitch(hass.Hass):
                 self.Log(
                     f"{event}: merged {countMergedOnTimeSlot} ON timeslot ", E_INFO)
 
+            self.Log(
+                f"{event}: model created in {round((time.time())-startAnalyzingTime,2)} sec. - now filtering", E_INFO)
+
+            # filter the timeslot by count - calculate on percentage by config
+            entityStates['bt']['timeslot'] = [
+                i for i in entityStates['bt']['timeslot'] if i[0] > int((entityStates['bt']['TSmaxcount']/100) *
+                                                                        config.Get("excludetimeslotpercentage"))]
+
+            print(entityStates)
+
             # if len(baseswitch_historys):
             #     # convert to json and write on file
             #     fileEventSave = open(os.path.join(_currentfolder,
@@ -461,8 +471,3 @@ class HassPredictSwitch(hass.Hass):
             #         self.Log(f"{event}: model UPDATED", E_INFO)
             #     else:
             #         self.Log(f"{event}: model CREATED  ", E_INFO)
-
-            print(entityStates)
-
-            self.Log(
-                f"{event}: analyzed model for in {round((time.time())-startAnalyzingTime,2)} sec.", E_INFO)
