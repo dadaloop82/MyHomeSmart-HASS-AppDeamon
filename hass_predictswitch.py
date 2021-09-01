@@ -156,14 +156,14 @@ class HassPredictSwitch(hass.Hass):
                 # put the data on entityStates variable
                 entityStatesTmp = json.load(fileEventCached)
 
-                if entityStates and 'confighash' in entityStates and entityStates['confighash'] == configHashMd5:
+                if entityStatesTmp and 'confighash' in entityStatesTmp and entityStatesTmp['confighash'] == configHashMd5:
                     # set the savedModelEventsHistoryStartDate|EndDate and the flag in isDataLoadedFromFile
+                    entityStates = entityStatesTmp
                     savedModelEventsHistoryEndDate = _datetime.strptime(
                         entityStates['updatedate'][0], DATETIME_FORMAT)
                     savedModelEventsHistoryStartDate = _datetime.strptime(
                         entityStates['updatedate'][1], DATETIME_FORMAT)
                     isDataLoadedFromFile = True
-                    entityStates = entityStatesTmp
                 else:
                     self.Log(
                         f"{event}: model file are not valid or config are changed", E_WARNING)
@@ -191,13 +191,16 @@ class HassPredictSwitch(hass.Hass):
                 endDate = utility.getdifferncedate(
                     _currentDate.replace(hour=23, minute=59, second=00, microsecond=00), "days", startDayPeriod)
                 startDate = utility.getdifferncedate(
-                    _currentDate.replace(hour=00, minute=00, second=00, microsecond=00), "days", endDayPeriod)
+                    _currentDate.replace(hour=23, minute=59, second=00, microsecond=00), "days", endDayPeriod)
+
+                if endDate > _currentDate:
+                    endDate = _currentDate.replace(second=00, microsecond=00)
 
                 if isDataLoadedFromFile:
                     self.Log(
                         f"{event}: Date requested: {startDate} - {endDate}", E_DEBUG)
                     self.Log(
-                        f"{event}: Date cached: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
+                        f"{event}: Date cached:  {startDate} - {endDate}", E_DEBUG)
 
                 # if is file loaded, check if the startDate are NOT between the already laoaded data
                 if(isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate):
