@@ -300,7 +300,7 @@ class HassPredictSwitch(hass.Hass):
                     merged = False
                     for periodOn in entityStates['bt']['timeslot']:
 
-                        if periodOn[3] != historyDate.weekday() and periodOn[4] != utility.getSeasonByDate(historyDate) and OnStatePeriod['start'] == OnStatePeriod['end']:
+                        if periodOn[3] != historyDate.weekday() and periodOn[4] != utility.getSeasonByDate(historyDate):
                             k += 1
                             continue
 
@@ -312,25 +312,25 @@ class HassPredictSwitch(hass.Hass):
                         diffEnd = int(
                             (timePeriod[1] - OnStatePeriod['end']).total_seconds()/60)
 
-                        if abs(diffStart) < config.Get('mergeonperiodminutes'):
+                        if abs(diffStart) <= config.Get('mergeonperiodminutes'):
                             entityStates['bt']['timeslot'][k][1] = OnStatePeriod['start'].strftime(
                                 ONPERIOD_DATETIME_FORMAT)
+
+                            # increase counter
+                            entityStates['bt']['timeslot'][k][0] += 1
+                            if entityStates['bt']['timeslot'][k][0] > entityStates['bt']['TSmaxcount']:
+                                entityStates['bt']['TSmaxcount'] = entityStates['bt']['timeslot'][k][0]
                             merged = True
 
-                        if abs(diffEnd) < config.Get('mergeonperiodminutes'):
+                        if abs(diffEnd) <= config.Get('mergeonperiodminutes'):
                             entityStates['bt']['timeslot'][k][2] = OnStatePeriod['end'].strftime(
                                 ONPERIOD_DATETIME_FORMAT)
                             merged = True
 
-                        if merged:
-                            entityStates['bt']['timeslot'][k][0] += 1
-                            if entityStates['bt']['timeslot'][k][0] > entityStates['bt']['TSmaxcount']:
-                                entityStates['bt']['TSmaxcount'] = entityStates['bt']['timeslot'][k][0]
-
                         k += 1
 
                     # save period on array
-                    if not merged:
+                    if merged == False:
                         entityStates['bt']['timeslot'].append(
                             [
                                 # count
