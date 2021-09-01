@@ -3,6 +3,7 @@ import datetime
 import time
 import os
 import json
+import hashlib
 
 from dateutil import tz
 from os.path import exists
@@ -137,6 +138,12 @@ class HassPredictSwitch(hass.Hass):
             # get baseswitch
             baseswitch = config.Get(['predictsevent', event, 'basewitch'])
 
+            # set configHash
+            configHash = [baseswitch, config.Get(
+                ['predictsevent', event, 'basedon'])]
+            configHashMd5 = hashlib.md5(
+                ''.join(map(str, configHash)).encode('utf-8')).hexdigest()
+
             # check if model is already saved
             fileName = os.path.join(_currentfolder, MODELPATH, f"{event}.json")
 
@@ -147,14 +154,21 @@ class HassPredictSwitch(hass.Hass):
                 fileEventCached = open(fileName,)
 
                 # put the data on entityStates variable
-                entityStates = json.load(fileEventCached)
+                entityStatesTmp = json.load(fileEventCached)
 
-                # set the savedModelEventsHistoryStartDate|EndDate and the flag in isDataLoadedFromFile
-                savedModelEventsHistoryEndDate = _datetime.strptime(
-                    entityStates['updatedate'][0], DATETIME_FORMAT)
-                savedModelEventsHistoryStartDate = _datetime.strptime(
-                    entityStates['updatedate'][1], DATETIME_FORMAT)
-                isDataLoadedFromFile = True
+                if entityStates and 'confighash' in entityStates and entityStates['confighash'] == configHashMd5:
+                    # set the savedModelEventsHistoryStartDate|EndDate and the flag in isDataLoadedFromFile
+                    savedModelEventsHistoryEndDate = _datetime.strptime(
+                        entityStates['updatedate'][0], DATETIME_FORMAT)
+                    savedModelEventsHistoryStartDate = _datetime.strptime(
+                        entityStates['updatedate'][1], DATETIME_FORMAT)
+                    isDataLoadedFromFile = True
+                    entityStates = entityStatesTmp
+                else:
+                    self.Log(
+                        f"{event}: model file are not valid or config are changed", E_WARNING)
+
+                fileEventCached.close()
 
             # get history of baseswitch
             self.Log(f"ask baseSwitch: {baseswitch} history ", E_DEBUG)
@@ -224,14 +238,22 @@ class HassPredictSwitch(hass.Hass):
             if not isDataLoadedFromFile:
                 self.Log(
                     f"{event}: history data to analyze NEW: {len(baseswitch_historys)}", E_INFO)
-            else:
+            elif len(baseswitch_historys):
                 self.Log(
                     f"{event}: history data to analyze UPDATE: {len(baseswitch_historys)}", E_INFO)
 
-            entityStates['updatedate'] = [_currentDate.strftime(DATETIME_FORMAT), (
-                endDate if firstDateWithNoHistory else firstDateWithNoHistory).replace(hour=00, minute=00, second=00, microsecond=00).strftime(DATETIME_FORMAT)]
+            # set updatetime
+            entityStates['updatedate'] = [
+                _currentDate.strftime(DATETIME_FORMAT),
+                (endDate if firstDateWithNoHistory else firstDateWithNoHistory).replace(
+                    hour=00, minute=00, second=00, microsecond=00).strftime(DATETIME_FORMAT)
+            ]
 
-            self.Log(f"{event}: analyzing history and create model ...", E_INFO)
+            # set configHash
+            configHash = [baseswitch, config.Get(
+                ['predictsevent', event, 'basedon'])]
+            entityStates['confighash'] = configHashMd5
+
             startAnalyzingTime = time.time()
             countMergedOnTimeSlot = 0
             for baseSwitchHistory in baseswitch_historys:
@@ -416,12 +438,9 @@ class HassPredictSwitch(hass.Hass):
                                 entityStates['bo'][basedonEntity]['count'] += 1
                                 entityStates['bo'][basedonEntity]['average'] = round((
                                     entityStates['bo'][basedonEntity]['min']+entityStates['bo'][basedonEntity]['max'])/2, 2)
-            self.Log(
-                f"{event}: merged {countMergedOnTimeSlot} ON timeslot ", E_INFO)
-
-            if isDataLoadedFromFile:
-              # close the file is are opened
-                fileEventCached.close()
+            if countMergedOnTimeSlot:
+                self.Log(
+                    f"{event}: merged {countMergedOnTimeSlot} ON timeslot ", E_INFO)
 
             if len(baseswitch_historys):
                 # convert to json and write on file
@@ -435,6 +454,7 @@ class HassPredictSwitch(hass.Hass):
                 else:
                     self.Log(f"{event}: model CREATED  ", E_INFO)
 
+            print(entityStates)
+
             self.Log(
                 f"{event}: analyzed model for in {round((time.time())-startAnalyzingTime,2)} sec.", E_INFO)
-            print(entityStates)
