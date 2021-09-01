@@ -423,17 +423,17 @@ class HassPredictSwitch(hass.Hass):
               # close the file is are opened
                 fileEventCached.close()
 
-            # if len(baseswitch_historys):
+            if len(baseswitch_historys):
                 # convert to json and write on file
-                # fileEventSave = open(os.path.join(_currentfolder,
-                #                                   MODELPATH, f"{event}.json"), "w")
-                # fileEventSave.write(json.dumps(entityStates))
-                # fileEventSave.close()
+                fileEventSave = open(os.path.join(_currentfolder,
+                                                  MODELPATH, f"{event}.json"), "w")
+                fileEventSave.write(json.dumps(entityStates))
+                fileEventSave.close()
 
-                # if isDataLoadedFromFile:
-                #     self.Log(f"{event}: model UPDATED", E_INFO)
-                # else:
-                #     self.Log(f"{event}: model CREATED  ", E_INFO)
+                if isDataLoadedFromFile:
+                    self.Log(f"{event}: model UPDATED", E_INFO)
+                else:
+                    self.Log(f"{event}: model CREATED  ", E_INFO)
 
             self.Log(
                 f"{event}: analyzed model for in {round((time.time())-startAnalyzingTime,2)} sec.", E_INFO)

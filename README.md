@@ -58,7 +58,7 @@ Warning: all these automatic automations are based on actions already performed 
 - [ ] (OP #8) Listen of variation on baseOnSensor
 - [ ] (OP #9) Send an event to Home Assistant with the potential switch
 
-- [ ] (Thanks [@Pirol62](https://github.com/dadaloop82/HASS_AppDeamon_SwitchPredictor/issues/1)) consider the variation of time by virtual sensor (season, year, ecc...)
+- [x] (Thanks [@Pirol62](https://github.com/dadaloop82/HASS_AppDeamon_SwitchPredictor/issues/1)) consider the variation of time  (season, year, ecc...)
 
 - [ ] Optimizing Code
 - [ ] Testing
@@ -80,25 +80,41 @@ Warning: all these automatic automations are based on actions already performed 
 # Features
 
 - Calculation of the reason for activating the *baseSwitch*
+
 - Calculation elements are the states of *basedOnSensor* that can be
     - Boolean
     - String
     - Value (in this case the minimum, the maximum and the average is computed) 
+
+- Consider the variation of time in timeslot 
+    - time
+    - weekday
+    - season
+
 - Grouping of events into time slots and matching of similar time slots
+    
+
 
 
 # Data Model Structure
-*(update at 31 August 2021)*
+*(update at 01 September 2021)*
 
 
 
     bt = baseSwitch Time Slot
     bo = basedOnSensor state and calculated probability
+    ['bt']['periodon]
+      array structure
+        [0] = count
+        [1] = startTime
+        [2] = endTime
+        [3] = weekday (0-6)
+        [4] = season (0-3)
 
 
 
 example:
 
 ```
-[ {'bt': {'periodon': {'sun': [{'on': '12:30', 'off': '13:15', 'count': 1}, {'on': '18:45', 'off': '19:15', 'count': 2}, {'on': '20:30', 'off': '22:00', 'count': 1}], 'mon': [{'on': '12:15', 'off': '12:30', 'count': 1}, {'on': '16:15', 'off': '21:30', 'count': 1}, {'on': '07:15', 'off': '07:30', 'count': 1}, {'on': '08:45', 'off': '10:45', 'count': 1}], 'tue': [{'on': '19:30', 'off': '19:45', 'count': 1}, {'on': '20:30', 'off': '22:00', 'count': 1}], 'wed': [{'on': '12:15', 'off': '12:30', 'count': 1}, {'on': '18:15', 'off': '18:30', 'count': 1}, {'on': '19:30', 'off': '20:15', 'count': 1}, {'on': '20:30', 'off': '21:30', 'count': 1}], 'thu': [{'on': '07:30', 'off': '07:30', 'count': 2}, {'on': '11:30', 'off': '12:15', 'count': 1}, {'on': '15:00', 'off': '18:00', 'count': 1}], 'fri': [{'on': '18:00', 'off': '18:00', 'count': 3}, {'on': '20:45', 'off': '21:30', 'count': 4}, {'on': '21:45', 'off': '22:30', 'count': 4}, {'on': '09:15', 'off': '09:30', 'count': 1}, {'on': '13:00', 'off': '13:30', 'count': 1}], 'sat': [{'on': '08:45', 'off': '09:00', 'count': 1}, {'on': '16:15', 'off': '18:00', 'count': 1}, {'on': '09:30', 'off': '09:45', 'count': 1}, {'on': '13:30', 'off': '13:45', 'count': 1}, {'on': '18:30', 'off': '18:45', 'count': 1}, {'on': '21:00', 'off': '21:30', 'count': 1}, {'on': '22:15', 'off': '23:30', 'count': 1}]}}, 'bo': {'person.daniel_2': {'type': 'string', 'home': {'count': 88}, 'not_home': {'count': 8}}, 'person.giuliana': {'type': 'string', 'not_home': {'count': 35}, 'home': {'count': 61}}, 'sensor.temperatura_e_umidita_temperature_measurement': {'type': 'float', 'min': 22.88, 'max': 26.0, 'average': 24.44, 'count': 96}, 'sensor.temperatura_e_umidita_relative_humidity_measurement': {'type': 'float', 'min': 38.0, 'max': 69.5, 'average': 53.75, 'count': 96}}, 'updatedate': ['2021-08-31T23:59:00+00:00', '2021-08-11T00:00:00+00:00']} ]
+{'bt': {'periodon': [[1, '09:00', '09:15', 6, 3], [2, '17:15', '18:15', 6, 3], [0, '12:45', '13:30', 0, 3], [0, '18:45', '19:30', 0, 3], [0, '20:45', '22:15', 0, 3], [2, '12:30', '12:45', 1, 3], [1, '16:30', '21:45', 1, 3], [1, '16:30', '13:15', 2, 3], [0, '19:45', '20:00', 2, 3], [0, '20:45', '22:15', 2, 3], [0, '12:30', '12:45', 3, 3], [0, '18:30', '18:45', 3, 3], [0, '19:45', '20:30', 3, 3], [0, '20:45', '21:45', 3, 3], [1, '07:45', '07:45', 4, 3], [0, '11:45', '12:30', 4, 3], [0, '15:15', '18:15', 4, 3], [0, '09:30', '09:45', 5, 3], [0, '13:15', '13:45', 5, 3], [0, '21:00', '21:45', 5, 3], [0, '21:45', '22:15', 5, 3], [2, '09:45', '10:00', 6, 3], [2, '13:45', '14:00', 6, 3], [2, '18:45', '19:00', 6, 3], [2, '21:15', '21:45', 6, 3], [2, '22:30', '23:45', 6, 3], [0, '19:00', '21:15', 0, 3], [1, '07:30', '07:45', 1, 3], [1, '09:00', '11:00', 1, 3], [0, '19:30', '21:30', 1, 3], [2, '10:45', '09:00', 6, 3]]}, 'bo': {'person.daniel_2': {'type': 'string', 'home': {'count': 65}, 'not_home': {'count': 9}}, 'person.giuliana': {'type': 'string', 'home': {'count': 58}, 'not_home': {'count': 16}}, 'sensor.temperatura_e_umidita_temperature_measurement': {'type': 'float', 'min': 22.88, 'max': 25.62, 'average': 24.25, 'count': 74}, 'sensor.temperatura_e_umidita_relative_humidity_measurement': {'type': 'float', 'min': 38.0, 'max': 69.5, 'average': 53.75, 'count': 74}}, 'updatedate': ['2021-09-01T08:58:59+00:00', '2021-08-12T00:00:00+00:00']}
 ```
