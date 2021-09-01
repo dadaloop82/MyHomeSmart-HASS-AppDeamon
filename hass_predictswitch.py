@@ -259,6 +259,7 @@ class HassPredictSwitch(hass.Hass):
 
             startAnalyzingTime = time.time()
             countMergedOnTimeSlot = 0
+            isThisOnPeriod = False
             for baseSwitchHistory in baseswitch_historys:
 
                 ###############################################################
@@ -278,18 +279,20 @@ class HassPredictSwitch(hass.Hass):
 
                 # set a variable with the date rounded by config value
                 historyTimeRounded = utility.roundDateByMinutes(
-                    historyDate, datetime.timedelta(minutes=15))
+                    historyDate, datetime.timedelta(minutes=config.Get('roundtimeevents')))
 
                 # set a variable with this state of baseSwitch
                 baseSwitchHistoryState = baseSwitchHistory['state']
 
                 # if the state are ON and we are not already onStatePeriod (on-off)
-                if baseSwitchHistoryState == "on":
+                if baseSwitchHistoryState == "on" and not isThisOnPeriod:
                     # PERIOD ON START
+                    isThisOnPeriod = True
                     OnStatePeriod['start'] = historyTimeRounded
 
-                elif baseSwitchHistoryState == "off" and OnStatePeriod['start']:
+                elif baseSwitchHistoryState == "off" and isThisOnPeriod:
                     # PERIOD ON END
+                    isThisOnPeriod = False
                     OnStatePeriod['end'] = historyTimeRounded
 
                     # check for period's merge
@@ -297,7 +300,7 @@ class HassPredictSwitch(hass.Hass):
                     merged = False
                     for periodOn in entityStates['bt']['periodon']:
 
-                        if periodOn[3] != historyDate.weekday() and periodOn[4] != utility.getSeasonByDate(historyDate):
+                        if periodOn[3] != historyDate.weekday() and periodOn[4] != utility.getSeasonByDate(historyDate) and OnStatePeriod['start'] == OnStatePeriod['end']:
                             k += 1
                             continue
 
@@ -445,17 +448,17 @@ class HassPredictSwitch(hass.Hass):
                 self.Log(
                     f"{event}: merged {countMergedOnTimeSlot} ON timeslot ", E_INFO)
 
-            if len(baseswitch_historys):
-                # convert to json and write on file
-                fileEventSave = open(os.path.join(_currentfolder,
-                                                  MODELPATH, f"{event}.json"), "w")
-                fileEventSave.write(json.dumps(entityStates))
-                fileEventSave.close()
+            # if len(baseswitch_historys):
+            #     # convert to json and write on file
+            #     fileEventSave = open(os.path.join(_currentfolder,
+            #                                       MODELPATH, f"{event}.json"), "w")
+            #     fileEventSave.write(json.dumps(entityStates))
+            #     fileEventSave.close()
 
-                if isDataLoadedFromFile:
-                    self.Log(f"{event}: model UPDATED", E_INFO)
-                else:
-                    self.Log(f"{event}: model CREATED  ", E_INFO)
+            #     if isDataLoadedFromFile:
+            #         self.Log(f"{event}: model UPDATED", E_INFO)
+            #     else:
+            #         self.Log(f"{event}: model CREATED  ", E_INFO)
 
             print(entityStates)
 
