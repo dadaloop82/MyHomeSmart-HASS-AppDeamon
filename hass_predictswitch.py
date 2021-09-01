@@ -125,7 +125,7 @@ class HassPredictSwitch(hass.Hass):
         # set Variables
         # bt = baseentity
         # bo = basedOnEntities
-        entityStates = {'bt': {'periodon': []}, 'bo': {}}
+        entityStates = {'bt': {'periodon': [], 'maxcount': 0}, 'bo': {}}
         baseswitch_historys = []
         averageObject = {}
         OnStatePeriod = {'start': None, 'end': None}
@@ -260,18 +260,18 @@ class HassPredictSwitch(hass.Hass):
             startAnalyzingTime = time.time()
             countMergedOnTimeSlot = 0
             isThisOnPeriod = False
-            for baseSwitchHistory in baseswitch_historys:
+            ###############################################################
+            # BASE SWITCH ROUTINE
+            # - TIME SLOT CALCULATION
+            #   array structure
+            #   [0] = count
+            #   [1] = startTime
+            #   [2] = endTime
+            #   [3] = weekday (0-6)
+            #   [4] = season (0-3)
+            ###############################################################
 
-                ###############################################################
-                # BASE SWITCH ROUTINE
-                # - TIME SLOT CALCULATION
-                #   array structure
-                #   [0] = count
-                #   [1] = startTime
-                #   [2] = endTime
-                #   [3] = weekday (0-6)
-                #   [4] = season (0-3)
-                ###############################################################
+            for baseSwitchHistory in baseswitch_historys:
 
                 # get and convert the hystory Date
                 historyDate = utility.convertdatatime(
@@ -324,6 +324,8 @@ class HassPredictSwitch(hass.Hass):
 
                         if merged:
                             entityStates['bt']['periodon'][k][0] += 1
+                            if entityStates['bt']['periodon'][k][0] > entityStates['bt']['maxcount']:
+                                entityStates['bt']['maxcount'] = entityStates['bt']['periodon'][k][0]
 
                         k += 1
 
