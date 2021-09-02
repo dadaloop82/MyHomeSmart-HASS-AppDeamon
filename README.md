@@ -64,12 +64,12 @@ Warning: all these automatic automations are based on actions already performed 
 8. (OP#6) Listen to the variations of the *basedOnSensor* and compare them with the results of the model
 9. (OP#7) Send an event to Home Assistant with the potential switch to manage the probability of it happening. It will be in Home Assistant that will decide what to do, whether to activate the switch or ask the user if they want to activate it.
 
-## Problems and difficulties
+# Problems and difficulties
 
 1. (DF#1) Unfortunately, I realized that I can't rely on HomeAssistant's history, because the save range for the data is very limited. I have to get the data from influxDB 
 
 
-## Want to help? You are welcome!
+# Want to help? You are welcome!
 This is and shall be an open, free and non-profit project; the goal is to create an automated system to manage situations in HomeAssistant.
 
 Or, if you want to thank me for what I do by buying me a coffee:
