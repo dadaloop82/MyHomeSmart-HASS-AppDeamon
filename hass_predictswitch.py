@@ -200,17 +200,14 @@ class HassPredictSwitch(hass.Hass):
                     self.Log(
                         f"{event}: Date requested: {startDate} - {endDate}", E_DEBUG)
                     self.Log(
-                        f"{event}: Date cached:  {startDate} - {endDate}", E_DEBUG)
+                        f"{event}: Date cached:  {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
 
                 # if is file loaded, check if the startDate are NOT between the already laoaded data
-                if(isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate):
-                    startDate = savedModelEventsHistoryEndDate
-
-                    self.Log(
-                        f"{event}: Date calculated: {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
+                # if(isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate):
+                #     startDate = savedModelEventsHistoryEndDate
 
                 # check if startDate is greater than enDate -> the data must be loaded from file
-                if startDate >= endDate or (endDate-startDate).days == 0:
+                if startDate >= savedModelEventsHistoryStartDate and endDate <= savedModelEventsHistoryEndDate:
                     self.Log(
                         f"{event}: load data from cache: {startDayPeriod}/{endDayPeriod}", E_INFO)
 
@@ -460,14 +457,14 @@ class HassPredictSwitch(hass.Hass):
 
             print(entityStates)
 
-            # if len(baseswitch_historys):
-            #     # convert to json and write on file
-            #     fileEventSave = open(os.path.join(_currentfolder,
-            #                                       MODELPATH, f"{event}.json"), "w")
-            #     fileEventSave.write(json.dumps(entityStates))
-            #     fileEventSave.close()
+            if len(baseswitch_historys):
+                # convert to json and write on file
+                fileEventSave = open(os.path.join(_currentfolder,
+                                                  MODELPATH, f"{event}.json"), "w")
+                fileEventSave.write(json.dumps(entityStates))
+                fileEventSave.close()
 
-            #     if isDataLoadedFromFile:
-            #         self.Log(f"{event}: model UPDATED", E_INFO)
-            #     else:
-            #         self.Log(f"{event}: model CREATED  ", E_INFO)
+                if isDataLoadedFromFile:
+                    self.Log(f"{event}: model UPDATED", E_INFO)
+                else:
+                    self.Log(f"{event}: model CREATED  ", E_INFO)
