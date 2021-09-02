@@ -196,25 +196,26 @@ class HassPredictSwitch(hass.Hass):
                 if endDate > _currentDate:
                     endDate = _currentDate.replace(second=00, microsecond=00)
 
+                self.Log(
+                    f"{event}: date requested: {startDate} - {endDate}", E_INFO)
+
                 if isDataLoadedFromFile:
                     self.Log(
-                        f"{event}: Date requested: {startDate} - {endDate}", E_DEBUG)
-                    self.Log(
-                        f"{event}: Date cached:  {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_DEBUG)
+                        f"{event}: date in cached:  {savedModelEventsHistoryStartDate} - {savedModelEventsHistoryEndDate}", E_INFO)
 
                 # if is file loaded, check if the startDate are NOT between the already laoaded data
-                # if(isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate):
-                #     startDate = savedModelEventsHistoryEndDate
+                if(isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate):
+                    startDate = savedModelEventsHistoryEndDate
 
                 # check if startDate is greater than enDate -> the data must be loaded from file
-                if startDate >= savedModelEventsHistoryStartDate and endDate <= savedModelEventsHistoryEndDate:
+                if isDataLoadedFromFile and startDate >= savedModelEventsHistoryStartDate and endDate <= savedModelEventsHistoryEndDate:
                     self.Log(
-                        f"{event}: load data from cache: {startDayPeriod}/{endDayPeriod}", E_INFO)
+                        f"{event}: get data from cache: {startDate}/{endDate}", E_INFO)
 
                 else:
                     # get history for this timeslot
                     self.Log(
-                        f"{event}: ask history data for day {startDayPeriod}/{endDayPeriod} )", E_INFO)
+                        f"{event}: ask history {startDate} - {endDate} )", E_INFO)
 
                     history = self.get_history(
                         entity_id=baseswitch, start_time=startDate, end_time=endDate)
@@ -454,9 +455,6 @@ class HassPredictSwitch(hass.Hass):
             entityStates['bt']['timeslot'] = [
                 i for i in entityStates['bt']['timeslot'] if i[0] > int((entityStates['bt']['TSmaxcount']/100) *
                                                                         config.Get("excludetimeslotpercentage"))]
-
-            print(entityStates)
-
             if len(baseswitch_historys):
                 # convert to json and write on file
                 fileEventSave = open(os.path.join(_currentfolder,
@@ -468,3 +466,7 @@ class HassPredictSwitch(hass.Hass):
                     self.Log(f"{event}: model UPDATED", E_INFO)
                 else:
                     self.Log(f"{event}: model CREATED  ", E_INFO)
+            else:
+                self.Log(f"{event}: model not touched", E_INFO)
+
+            print(entityStates)
