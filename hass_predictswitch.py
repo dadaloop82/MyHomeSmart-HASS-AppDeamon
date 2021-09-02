@@ -4,13 +4,12 @@ import time
 import os
 import json
 import hashlib
-
-from dateutil import tz
+import pytz
 from os.path import exists
 
 
 # Constant
-#E_DEBUG = "INFO"
+# E_DEBUG = "INFO"
 E_DEBUG = "DEBUG"
 E_INFO = "INFO"
 E_WARNING = "WARNING"
@@ -27,7 +26,6 @@ MODELPATH = "models"
 # Object
 _datetime = datetime.datetime
 _currentfolder = os.path.dirname(os.path.abspath(__file__))
-_currentDate = _datetime.now()
 # HassPredictSwitch Class
 
 
@@ -120,7 +118,8 @@ class HassPredictSwitch(hass.Hass):
         utility = self.Utility(self)
 
         # set Constant
-        self.TIMEZONE = tz.gettz(config.Get("timezone"))
+        self._currentDateTime = _datetime.now(
+            pytz.timezone(config.Get("timezone"))).replace(tzinfo=None)
 
         # set Variables
         # bt = baseentity
@@ -131,9 +130,11 @@ class HassPredictSwitch(hass.Hass):
         OnStatePeriod = {'start': None, 'end': None}
         isDataLoadedFromFile = False
         dayHistoryPeriod = config.Get('historyday')
-        firstDateWithNoHistory = _currentDate
+        firstDateWithNoHistory = self._currentDateTime
 
         for event in config.Get('predictsevent'):
+
+            currentDateTime = self._currentDateTime
 
             # get baseswitch
             baseswitch = config.Get(['predictsevent', event, 'basewitch'])
@@ -189,12 +190,13 @@ class HassPredictSwitch(hass.Hass):
 
                 # calculate date
                 endDate = utility.getdifferncedate(
-                    _currentDate.replace(hour=23, minute=59, second=00, microsecond=00), "days", startDayPeriod)
+                    currentDateTime.replace(hour=23, minute=59, second=00, microsecond=00), "days", startDayPeriod)
                 startDate = utility.getdifferncedate(
-                    _currentDate.replace(hour=23, minute=59, second=00, microsecond=00), "days", endDayPeriod)
+                    currentDateTime.replace(hour=23, minute=59, second=00, microsecond=00), "days", endDayPeriod)
 
-                if endDate > _currentDate:
-                    endDate = _currentDate.replace(second=00, microsecond=00)
+                if endDate > currentDateTime:
+                    endDate = currentDateTime.replace(
+                        second=00, microsecond=00)
 
                 self.Log(
                     f"{event}: date requested: {startDate} - {endDate}", E_INFO)
@@ -245,7 +247,7 @@ class HassPredictSwitch(hass.Hass):
 
             # set updatetime
             entityStates['updatedate'] = [
-                _currentDate.strftime(DATETIME_FORMAT),
+                self._currentDateTime.strftime(DATETIME_FORMAT),
                 (endDate if firstDateWithNoHistory else firstDateWithNoHistory).replace(
                     hour=00, minute=00, second=00, microsecond=00).strftime(DATETIME_FORMAT)
             ]
@@ -272,12 +274,12 @@ class HassPredictSwitch(hass.Hass):
             for baseSwitchHistory in baseswitch_historys:
 
                 # get and convert the hystory Date
-                historyDate = utility.convertdatatime(
+                historyDateTime = utility.convertdatatime(
                     baseSwitchHistory['last_changed'])
 
                 # set a variable with the date rounded by config value
                 historyTimeRounded = utility.roundDateByMinutes(
-                    historyDate, datetime.timedelta(minutes=config.Get('roundtimeevents')))
+                    historyDateTime, datetime.timedelta(minutes=config.Get('roundtimeevents')))
 
                 # set a variable with this state of baseSwitch
                 baseSwitchHistoryState = baseSwitchHistory['state']
@@ -298,32 +300,33 @@ class HassPredictSwitch(hass.Hass):
                     merged = False
                     for periodOn in entityStates['bt']['timeslot']:
 
-                        if periodOn[3] != historyDate.weekday() and periodOn[4] != utility.getSeasonByDate(historyDate):
-                            k += 1
-                            continue
+                        if periodOn[3] == historyDateTime.weekday() and periodOn[4] == utility.getSeasonByDate(historyDateTime):
 
-                        timePeriod = [_datetime.strptime(
-                            periodOn[1], "%H:%M"), _datetime.strptime(periodOn[2], "%H:%M")]
+                            timePeriod = [_datetime.strptime(
+                                periodOn[1], "%H:%M"), _datetime.strptime(periodOn[2], "%H:%M")]
 
-                        diffStart = int(
-                            (timePeriod[0] - OnStatePeriod['start']).total_seconds()/60)
-                        diffEnd = int(
-                            (timePeriod[1] - OnStatePeriod['end']).total_seconds()/60)
+                            diffStart = int(
+                                (timePeriod[0] - OnStatePeriod['start']).total_seconds()/60)
+                            diffEnd = int(
+                                (timePeriod[1] - OnStatePeriod['end']).total_seconds()/60)
 
-                        if abs(diffStart) <= config.Get('mergeonperiodminutes'):
-                            entityStates['bt']['timeslot'][k][1] = OnStatePeriod['start'].strftime(
-                                ONPERIOD_DATETIME_FORMAT)
+                            if diffStart > 0 and abs(diffStart) <= config.Get('mergeonperiodminutes'):
 
-                            # increase counter
-                            entityStates['bt']['timeslot'][k][0] += 1
-                            if entityStates['bt']['timeslot'][k][0] > entityStates['bt']['TSmaxcount']:
-                                entityStates['bt']['TSmaxcount'] = entityStates['bt']['timeslot'][k][0]
-                            merged = True
+                                entityStates['bt']['timeslot'][k][1] = OnStatePeriod['start'].strftime(
+                                    ONPERIOD_DATETIME_FORMAT)
 
-                        if abs(diffEnd) <= config.Get('mergeonperiodminutes'):
-                            entityStates['bt']['timeslot'][k][2] = OnStatePeriod['end'].strftime(
-                                ONPERIOD_DATETIME_FORMAT)
-                            merged = True
+                                # increase counter
+                                entityStates['bt']['timeslot'][k][0] += 1
+                                if entityStates['bt']['timeslot'][k][0] > entityStates['bt']['TSmaxcount']:
+                                    entityStates['bt']['TSmaxcount'] = entityStates['bt']['timeslot'][k][0]
+
+                                merged = True
+
+                            if diffEnd < 0 and abs(diffEnd) <= config.Get('mergeonperiodminutes'):
+                                entityStates['bt']['timeslot'][k][2] = OnStatePeriod['end'].strftime(
+                                    ONPERIOD_DATETIME_FORMAT)
+
+                                merged = True
 
                         k += 1
 
@@ -332,7 +335,7 @@ class HassPredictSwitch(hass.Hass):
                         entityStates['bt']['timeslot'].append(
                             [
                                 # count
-                                0,
+                                1,
                                 # start time
                                 OnStatePeriod['start'].strftime(
                                     ONPERIOD_DATETIME_FORMAT),
@@ -340,9 +343,9 @@ class HassPredictSwitch(hass.Hass):
                                 OnStatePeriod['end'].strftime(
                                     ONPERIOD_DATETIME_FORMAT),
                                 # weekday (0-6)
-                                historyDate.weekday(),
+                                historyDateTime.weekday(),
                                 # season
-                                utility.getSeasonByDate(OnStatePeriod['end'])
+                                utility.getSeasonByDate(historyDateTime)
                             ]
                         )
                     else:
@@ -356,10 +359,10 @@ class HassPredictSwitch(hass.Hass):
                 for basedonEntity in config.Get(['predictsevent', event, 'basedon']):
 
                     # calculate period from time by config to switchBase changed event
-                    startHistory = historyDate - \
+                    startHistory = historyDateTime - \
                         datetime.timedelta(seconds=config.Get(
                             'timerangehistoryseconds'))
-                    endHistory = historyDate + \
+                    endHistory = historyDateTime + \
                         datetime.timedelta(seconds=config.Get(
                             'timerangehistoryseconds'))
 

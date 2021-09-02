@@ -36,14 +36,15 @@ Warning: all these automatic automations are based on actions already performed 
 
 # Progress & ToDo
 
-- [x] (OP #1) Getting the history of a specific switch in specified time period 
-- [x] (OP #2) Getting the history of all connected sensors 
+- [x] (OP#1) Getting the history of a specific switch in specified time period 
+- [ ] (DF#1) **Getting the history from influxdb**
+- [x] (OP#2) Getting the history of all connected sensors 
 - [x] Caching the history
-- [x] (OP #4) get time slot from the history of the based on sensors
-- [x] (OP #5) Filters the BaseSwitch periodOn data by excluding insignificant events
-- [x] (OP #7) Save the model (and reuse for caching)
-- [ ] (OP #8) Listen of variation on baseOnSensor
-- [ ] (OP #9) Send an event to Home Assistant with the potential switch
+- [x] (OP#3) get time slot from the history of the based on sensors
+- [x] (OP#4) Filters the BaseSwitch periodOn data by excluding insignificant events
+- [x] (OP#5) Save the model (and reuse for caching)
+- [ ] (OP#6) Listen of variation on baseOnSensor
+- [ ] (OP#7) Send an event to Home Assistant with the potential switch
 
 - [x] (Thanks [@Pirol62](https://github.com/dadaloop82/HASS_AppDeamon_SwitchPredictor/issues/1)) consider the variation of time  (season, year, ecc...)
 
@@ -53,16 +54,20 @@ Warning: all these automatic automations are based on actions already performed 
 
 # Operation diagram
 
-1. Getting the history of a specific switch (*baseSwitch*) in specified time period (by config)
+1. (OP#1) Getting the history of a specific switch (*baseSwitch*) in specified time period (by config)
 
-2. Getting the history of all connected sensors (*basedOnSensor* - declared on Config) in the time interval in which baseSwitch has been activated (on) since a time specified in configuration
-3. Now I have the real situation (snapshot) of what has changed before the *baseSwitch* was activated
-4. From the history of the various sensors (*basedOnSensor*), when they change state, group the times by rounding them to a value specified in the configuration, thus obtaining the day of the week, the hour, the minutes of the event and calculate the frequency of repetition
-5. Discard the data that are not satisfactory or because they are too few (by config)
-6. Now have an overview of what triggered *basedOnSensor* to turn on, with the relevant time periods broken down by days of the week
-7. Save the model
-8. Listen to the variations of the *basedOnSensor* and compare them with the results of the model
-9. Send an event to Home Assistant with the potential switch to manage the probability of it happening. It will be in Home Assistant that will decide what to do, whether to activate the switch or ask the user if they want to activate it.
+2. (OP#2) Getting the history of all connected sensors (*basedOnSensor* - declared on Config) in the time interval in which baseSwitch has been activated (on) since a time specified in configuration
+
+3. (OP#3) From the history of the various sensors (*basedOnSensor*), when they change state, group the times by rounding them to a value specified in the configuration, thus obtaining the day of the week, the hour, the minutes of the event and calculate the frequency of repetition
+5. (OP#4) Discard the data that are not satisfactory or because they are too few (by config)
+7. (OP#5) Save the model
+8. (OP#6) Listen to the variations of the *basedOnSensor* and compare them with the results of the model
+9. (OP#7) Send an event to Home Assistant with the potential switch to manage the probability of it happening. It will be in Home Assistant that will decide what to do, whether to activate the switch or ask the user if they want to activate it.
+
+## Problems and difficulties
+
+1. (DF#1) Unfortunately, I realized that I can't rely on HomeAssistant's history, because the save range for the data is very limited. I have to get the data from influxDB 
+
 
 ## Want to help? You are welcome!
 This is and shall be an open, free and non-profit project; the goal is to create an automated system to manage situations in HomeAssistant.
