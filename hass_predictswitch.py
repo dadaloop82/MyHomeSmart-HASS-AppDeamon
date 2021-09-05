@@ -40,6 +40,8 @@
 
 # python module imports
 import hassapi as hass
+import pytz
+from datetime import datetime, timedelta
 
 
 class Constant:
@@ -49,6 +51,7 @@ class Constant:
         self.Time_short = "%H:%M"
         self.Path_Model = "models"
         self.UseInfluxDB = False
+        self.Now = None
 
 
 class Config:
@@ -73,42 +76,82 @@ class Config:
         # read the config
         self.readConfig()
 
+        # set the useInfluxDB flag
         if self.currentConfig["useinfluxdb"]:
             # setup the influxDB boolean
             self.constant.UseInfluxDB = True
 
+        # set the Now datetime
+        self.constant.Now = datetime.now(pytz.timezone(
+            self.currentConfig['timezone'])).replace(tzinfo=None)
+
     def readConfig(self):
+        self.currentConfig = self.configParms
         for key, value in self.defaultParams.items():
             if key in self.configParms:
                 self.currentConfig[key] = self.configParms[key]
             else:
                 self.currentConfig[key] = value
 
-    def getConfig(self, key):
-        if not key:
-            return self.currentConfig
-
 
 class historyDB:
-    def __init__(self, hass, constant):
+    def __init__(self, hass, constant, config, utility):
         self._hass = hass
-        self.constant = constant
+        self._utility = utility
+        self._constant = constant
+        self._config = config
+        self.influxDB_client = None
+        self.InfluxDB_module = None
+        self.influxDB_queryapi = None
+        self.influxDB_config = None
 
-        # import influxDB library if influxDB are enable
+        # import influxDB library if influxDB enable
         if constant.UseInfluxDB:
             try:
                 influxbModule = __import__("influxdb_client")
-                self.InfluxDBClient = influxbModule.InfluxDBClient
+                self.InfluxDB_module = influxbModule.InfluxDBClient
             except:
                 self._hass.log(
                     "InfluxDB enabled but library are not loaded in AppDeamon, fallback to HASS history (limited!)", level="WARNING")
-                self.constant.UseInfluxDB = False
+                self._constant.UseInfluxDB = False
+
+        # setup influxDB if enabled and make test query
+        if constant.UseInfluxDB:
+            try:
+                # set the influxDB config
+                self.influxDB_config = self._config.currentConfig['influxdb']
+                if constant.UseInfluxDB:
+                    self.influxDB_client = self.InfluxDB_module(
+                        url=self.influxDB_config['url'], token=self.influxDB_config['token'], org=self.influxDB_config['org'])
+                    self.influxDB_queryapi = self.influxDB_client.query_api()
+            except:
+                self._hass.log(
+                    "InfluxDB is enabled but not configured correctly, fallback to HASS history (limited!)", level="WARNING")
+                self._constant.UseInfluxDB = False
+
+        # test query if  influxDB library if influxDB are enable
+        print(self.getHistory(start=self._constant.Now,
+              end=self._utility.calculateDateTime(self._constant.Now, seconds=1)))
+
+    def getHistory(self, **kwargs):
+
+        if self._constant.UseInfluxDB:
+            # influxDB query
+            bucket = self.influxDB_config['bucket']
+            query = f'from(bucket:"{bucket}") |> {kwargs.items()})'
+            return self.influxDB_queryapi.query(query)
+
+        # HASSio query
+        return self._hass.get_history(**kwargs)
 
 
 class Utility:
     def __init__(self, hass, constant):
         self._hass = hass
         self.constant = constant
+
+    def calculateDateTime(self, dtobj, **kwargs):
+        return dtobj - timedelta(**kwargs)
 
 
 class HassPredictSwitch(hass.Hass):
@@ -123,7 +166,7 @@ class HassPredictSwitch(hass.Hass):
         _constant = Constant()
         _config = Config(self, _constant)
         _utility = Utility(self, _constant)
-        _historydb = historyDB(self, _constant)
+        _historydb = historyDB(self, _constant, _config, _utility)
 
 
 # import datetime

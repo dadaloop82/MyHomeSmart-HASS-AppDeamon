@@ -7,21 +7,35 @@ predict_switch:
   config:
     # period (in day) for get history data from now
     historyday: 60
-    # time range in minutes for analysing model of each basedon entities
-    timerangehistoryseconds: 0
     # minutes to merge ON period
-    mergeonperiodminutes: 5
+    mergeonperiodminutes: 15
     # rounds baseentity time by minutes
-    roundtimeevents: 5
-    # ratio of minimum time periods to maximum number (percentage)
-    # minimundatatimeslotcount: 70
+    roundtimeevents: 15
+    # percentage to exlude timeslot based on max count
+    excludetimeslotpercentage: 30
     # timezone
     timezone: Europe/Rome
+    # use the influxDB or not
+    useinfluxdb: True
+    # infludb configuration
+    # NB: the secrets are the file "/appdeamon/config/secrets.yaml" !!
+    influxdb:
+      url: !secret influxdb_url
+      token: !secret influxdb_token
+      bucket: !secret influxdb_bucket
+      org: !secret influxdb_org
+
     # group of predict events [name of event|baseswitch|basedon]
     predictsevent:
       turnonvacuum:
         basewitch: switch.neato_botvac_arturo
-        basedon: [person.daniel_2, person.giuliana, switch.samsung_8_series_50]
-      # turonvacuum:
-      #   basewitch: switch.neato_botvac_arturo
-      #   basedon: [person.daniel_2, person.giuliana]
+        basedon: [person.daniel_2, person.giuliana]
+      # turontelevision:
+      #   basewitch: switch.samsung_8_series_50
+      #   basedon:
+      #     [
+      #       person.daniel_2,
+      #       person.giuliana,
+      #       sensor.temperatura_e_umidita_temperature_measurement,
+      #       sensor.temperatura_e_umidita_relative_humidity_measurement,
+      #     ]
