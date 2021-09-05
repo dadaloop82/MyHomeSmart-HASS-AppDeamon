@@ -1,4 +1,4 @@
-# Home Assistant AppDeamon  - Event predictor
+# Home Assistant - Power with your control!
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
@@ -6,21 +6,12 @@
 ### This is an idea under development (when I have free time)
 #### *I am Italian, sorry for any mistakes in English.*
 
-# I want to try it right now!
-**No, wait.**
 
-This is a program in Python that I'm making in my spare time and is currently unfinished.
-
-To try it and possibly contribute (thanks!) these are the ingredients:
-
-- knowledge of Python
-
-- a working instance of Home Assistant
-- the appDeamon addon correctly installed and running 
-
-# The idea (and the dream)
-My goal (and dream) is for Home Assistant to decide autonomously when it is appropriate to activate a certain event, based on the history of one or more switches, relating the date and time and the status of other sensors.
-Based on the calculations performed, if the level of certainty is high it could directly activate the switch, or if it is low (uncertain) it could ask through Alexa (Amazon) if you want to proceed with the activation and based on the answer given it could even modify its data model.
+# I have a dream
+## make my life smarter without creating any automation!
+Based on the analysis of the change of a certain switch (set in configuration), the system analyzes the change of the sensors in that moment
+So it creates a model, divided by periods (including seasons, etc. ..) trying to guess their habits and if the conditions are similar, it proposes via Alexa the activation of the switch, learning from the answers given.
+If the probability of activation is very high, the action could be performed automatically without any iteration with the user.
 
 # Use case example
 
@@ -34,39 +25,6 @@ Warning: all these automatic automations are based on actions already performed 
 
 **It is not foreseen that the system considers to ask or to execute actions in a completely spontaneous way.**
 
-# Progress & ToDo
-
-- [x] (OP#1) Getting the history of a specific switch in specified time period 
-- [ ] (DF#1) **Getting the history from influxdb**
-- [x] (OP#2) Getting the history of all connected sensors 
-- [x] Caching the history
-- [x] (OP#3) get time slot from the history of the based on sensors
-- [x] (OP#4) Filters the BaseSwitch periodOn data by excluding insignificant events
-- [x] (OP#5) Save the model (and reuse for caching)
-- [ ] (OP#6) Listen of variation on baseOnSensor
-- [ ] (OP#7) Send an event to Home Assistant with the potential switch
-
-- [x] (Thanks [@Pirol62](https://github.com/dadaloop82/HASS_AppDeamon_SwitchPredictor/issues/1)) consider the variation of time  (season, year, ecc...)
-
-- [ ] Optimizing Code
-- [ ] Testing
-- [ ] more Testing :)
-
-# Operation diagram
-
-1. (OP#1) Getting the history of a specific switch (*baseSwitch*) in specified time period (by config)
-
-2. (OP#2) Getting the history of all connected sensors (*basedOnSensor* - declared on Config) in the time interval in which baseSwitch has been activated (on) since a time specified in configuration
-
-3. (OP#3) From the history of the various sensors (*basedOnSensor*), when they change state, group the times by rounding them to a value specified in the configuration, thus obtaining the day of the week, the hour, the minutes of the event and calculate the frequency of repetition
-5. (OP#4) Discard the data that are not satisfactory or because they are too few (by config)
-7. (OP#5) Save the model
-8. (OP#6) Listen to the variations of the *basedOnSensor* and compare them with the results of the model
-9. (OP#7) Send an event to Home Assistant with the potential switch to manage the probability of it happening. It will be in Home Assistant that will decide what to do, whether to activate the switch or ask the user if they want to activate it.
-
-## Problems and difficulties
-
-1. (DF#1) Unfortunately, I realized that I can't rely on HomeAssistant's history, because the save range for the data is very limited. I have to get the data from influxDB 
 
 
 ## Want to help? You are welcome!
