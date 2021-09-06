@@ -43,6 +43,10 @@ import hassapi as hass
 import pytz
 from datetime import datetime, timedelta
 
+"""
+Constant and Variables
+"""
+
 
 class Constant:
     def __init__(self):
@@ -51,10 +55,22 @@ class Constant:
         self.Time_short = "%H:%M"
         self.Path_Model = "models"
         self.UseInfluxDB = False
-        self.Now = None
+        self.Now = datetime.now()
+
+
+"""
+Config Class
+"""
 
 
 class Config:
+    """
+    Config Class:   Init
+                  - read the configuration
+                  - set default config parameters      
+                  - set flag for UseInfluxDB
+    """
+
     def __init__(self, hass, constant):
         self._hass = hass
         self.constant = constant
@@ -81,11 +97,13 @@ class Config:
             # setup the influxDB boolean
             self.constant.UseInfluxDB = True
 
-        # set the Now datetime
-        self.constant.Now = datetime.now(pytz.timezone(
-            self.currentConfig['timezone'])).replace(tzinfo=None)
+    """
+    Config Class:   readConfig
+                    read the configuration's value from apps.yaml
+                    and apply default who key is missing
+    """
 
-    def readConfig(self):
+    def readConfig(self) -> object:
         self.currentConfig = self.configParms
         for key, value in self.defaultParams.items():
             if key in self.configParms:
@@ -94,7 +112,19 @@ class Config:
                 self.currentConfig[key] = value
 
 
+"""
+HassIO history manager (build-in history and influxDB )
+"""
+
+
 class historyDB:
+    """
+    historyDB Class:   Init
+                      - if UseInfluxDB are true, load the PIP module (must be added in appDeamon!)
+                      - setup the connection
+                      - do a query for test
+    """
+
     def __init__(self, hass, constant, config, utility):
         self._hass = hass
         self._utility = utility
@@ -104,8 +134,6 @@ class historyDB:
         self.InfluxDB_module = None
         self.influxDB_queryapi = None
         self.influxDB_config = None
-
-        # import influxDB library if influxDB enable
         if constant.UseInfluxDB:
             try:
                 influxbModule = __import__("influxdb_client")
@@ -114,8 +142,6 @@ class historyDB:
                 self._hass.log(
                     "InfluxDB enabled but library are not loaded in AppDeamon, fallback to HASS history (limited!)", level="WARNING")
                 self._constant.UseInfluxDB = False
-
-        # setup influxDB if enabled and make test query
         if constant.UseInfluxDB:
             try:
                 # set the influxDB config
@@ -128,30 +154,74 @@ class historyDB:
                 self._hass.log(
                     "InfluxDB is enabled but not configured correctly, fallback to HASS history (limited!)", level="WARNING")
                 self._constant.UseInfluxDB = False
+        end = self._constant.Now
+        start = self._utility.calculateDateTimeDiffernce(
+            self._constant.Now, minutes=1)
+        if not len(self.getHistory(start=start, end=end)):
+            self._hass.log(
+                "Cannot ask history - please check Appdeamon or HASS config", level="ERROR")
 
-        # test query if  influxDB library if influxDB are enable
-        print(self.getHistory(start=self._constant.Now,
-              end=self._utility.calculateDateTime(self._constant.Now, seconds=1)))
+    """
+    historyDB Class:    getHistory
+                        Get history with actived module (HASS build-in or influxDB)
+                        > **kwargs  (dict arguments)  arguments (ex: start=[dt], end=[dt])
+    """
 
-    def getHistory(self, **kwargs):
+    def getHistory(self, **kwargs) -> object:
+        try:
+            start = self._utility.convertDateTimeToIsoTimezone(kwargs['start'])
+            end = self._utility.convertDateTimeToIsoTimezone(kwargs['end'])
+            if self._constant.UseInfluxDB:
+                q = f'''
+                  from(bucket:"{self.influxDB_config['bucket']}") |> range(start: {start}, stop: {end})
+                  '''
+                return self.influxDB_queryapi.query(q)
+            return self._hass.get_history(**kwargs)
+        except:
+            return False
 
-        if self._constant.UseInfluxDB:
-            # influxDB query
-            bucket = self.influxDB_config['bucket']
-            query = f'from(bucket:"{bucket}") |> {kwargs.items()})'
-            return self.influxDB_queryapi.query(query)
 
-        # HASSio query
-        return self._hass.get_history(**kwargs)
+"""
+Utility Class
+"""
 
 
 class Utility:
+    """
+      Utility Class:   Init                    
+    """
+
     def __init__(self, hass, constant):
         self._hass = hass
         self.constant = constant
 
-    def calculateDateTime(self, dtobj, **kwargs):
+    """
+    Utility Class:    calculateDateTimeDiffernce
+                      Calculate the datetime difference and return the datetime object
+                      > dtobj     (datetime object) the datetime context
+                      > **kwargs  (dict arguments)  arguments (ex: minutes=1)
+    """
+
+    def calculateDateTimeDiffernce(self, dtobj, **kwargs) -> datetime:
         return dtobj - timedelta(**kwargs)
+
+    """
+    Utility Class:    convertDateTimeToString
+                      Convert datetime object in string with TZ format
+                      > dtobj     (datetime object) the datetime context                      
+    """
+
+    def convertDateTimeToString(self, dtobj) -> str:
+        return dtobj.strftime(self.constant.DateTime_TZ)
+
+    """
+    Utility Class:    convertDateTimeToIsoTimezone
+                      Convert datetime object in ISO with timezone
+                      > dtobj     (datetime object) the datetime context                      
+    """
+
+    def convertDateTimeToIsoTimezone(self, dtobj) -> datetime:
+        return dtobj.replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 class HassPredictSwitch(hass.Hass):
