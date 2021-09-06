@@ -6,6 +6,9 @@
 ### This is an idea under development (when I have free time)
 #### *I am Italian, sorry for any mistakes in English.*
 
+-----
+### **06 Sep 2021** : Code has been completely redone and optimized, adding influxDB integration
+-----
 
 # I have a dream: make my life smarter!
 Based on the analysis of the change of a certain switch (set in configuration), the system analyzes the change of the sensors in that moment

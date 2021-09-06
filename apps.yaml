@@ -16,7 +16,7 @@ predict_switch:
     # timezone
     timezone: Europe/Rome
     # use the influxDB or not
-    useinfluxdb: True
+    useinfluxdb: False
     # infludb configuration
     # NB: the secrets are the file "/appdeamon/config/secrets.yaml" !!
     influxdb:
@@ -24,9 +24,8 @@ predict_switch:
       token: !secret influxdb_token
       bucket: !secret influxdb_bucket
       org: !secret influxdb_org
-
     # group of predict events [name of event|baseswitch|basedon]
-    predictsevent:
+    predictsevents:
       turnonvacuum:
         basewitch: switch.neato_botvac_arturo
         basedon: [person.daniel_2, person.giuliana]

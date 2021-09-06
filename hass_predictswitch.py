@@ -50,8 +50,9 @@ Constant and Variables
 
 class Constant:
     def __init__(self):
-        self.DateTime_TZ = "%Y-%m-%dT%H:%M:%S+00:00"
-        self.DateTime_msTZ = "%Y-%m-%dT%H:%M:%S.%f+00:00"
+        self.DateTimeFormat = "%Y-%m-%d %H:%M:%S"
+        self.DateTimeFormat_TZ = "%Y-%m-%dT%H:%M:%S+00:00"
+        self.DateTimeFormat_msTZ = "%Y-%m-%dT%H:%M:%S.%f+00:00"
         self.Time_short = "%H:%M"
         self.Path_Model = "models"
         self.UseInfluxDB = False
@@ -157,7 +158,7 @@ class historyDB:
         end = self._constant.Now
         start = self._utility.calculateDateTimeDiffernce(
             self._constant.Now, minutes=1)
-        if not len(self.getHistory(start=start, end=end)):
+        if not self.getHistory(start=start, end=end):
             self._hass.log(
                 "Cannot ask history - please check Appdeamon or HASS config", level="ERROR")
 
@@ -168,17 +169,27 @@ class historyDB:
     """
 
     def getHistory(self, **kwargs) -> object:
+        ret = None
         try:
-            start = self._utility.convertDateTimeToIsoTimezone(kwargs['start'])
-            end = self._utility.convertDateTimeToIsoTimezone(kwargs['end'])
             if self._constant.UseInfluxDB:
-                q = f'''
-                  from(bucket:"{self.influxDB_config['bucket']}") |> range(start: {start}, stop: {end})
-                  '''
-                return self.influxDB_queryapi.query(q)
-            return self._hass.get_history(**kwargs)
+                print("todo")
+                # influxDBquery = f'''
+                #   from(bucket:"{self.influxDB_config['bucket']}") |> range(start: {start}, stop: {end})
+                #   '''
+                # historyObj = self.influxDB_queryapi.query(influxDBquery)
+            else:
+                hasshistoryDBquery = dict()
+                if 'entity_id' in kwargs:
+                    hasshistoryDBquery['entity_id'] = kwargs['entity_id']
+                if 'start' in kwargs:
+                    hasshistoryDBquery['start_time'] = kwargs['start']
+                if 'end' in kwargs:
+                    hasshistoryDBquery['end_time'] = kwargs['end']
+                if hasshistoryDBquery:
+                    ret = self._hass.get_history(**hasshistoryDBquery)[0]
         except:
-            return False
+            return None
+        return ret
 
 
 """
@@ -193,7 +204,7 @@ class Utility:
 
     def __init__(self, hass, constant):
         self._hass = hass
-        self.constant = constant
+        self._constant = constant
 
     """
     Utility Class:    calculateDateTimeDiffernce
@@ -212,7 +223,22 @@ class Utility:
     """
 
     def convertDateTimeToString(self, dtobj) -> str:
-        return dtobj.strftime(self.constant.DateTime_TZ)
+        return dtobj.strftime(self._constant.DateTimeFormat_TZ)
+
+    """
+    Utility Class:    convertStringToDateTime
+                      Detects if the datetime string contains a timezone notation 
+                      and converts the string to a datetime object
+                      > dtstring    (string) the datetime context                      
+    """
+
+    def convertStringToDateTime(self, dtstring) -> datetime:
+        if "." in dtstring:
+            dtstring = datetime.strptime(
+                dtstring, self._constant.DateTimeFormat_msTZ).strftime(self._constant.DateTimeFormat)
+        dtstring = self._hass.parse_utc_string(dtstring)
+        dtstring = datetime.utcfromtimestamp(dtstring)
+        return dtstring
 
     """
     Utility Class:    convertDateTimeToIsoTimezone
@@ -225,18 +251,41 @@ class Utility:
 
 
 class HassPredictSwitch(hass.Hass):
-
-    # initialize Class
     def initialize(self):
-
-        # log
-        self.log("Starting new instance", level="INFO")
-
-        # init the classes
+        self.log("Starting new instance, initialization ...", level="INFO")
         _constant = Constant()
         _config = Config(self, _constant)
         _utility = Utility(self, _constant)
         _historydb = historyDB(self, _constant, _config, _utility)
+
+        Config_predictsEvents = _config.currentConfig['predictsevents']
+        if not Config_predictsEvents:
+            self.log(
+                "No event to predict specified in the configuration. Please refer to apps.yaml of appDeamon", level="WARNING")
+        else:
+            for predictEventKey in list(Config_predictsEvents.keys()):
+
+                predictEvent = Config_predictsEvents[predictEventKey]
+                baseSwitchHistory = {}
+
+                if not "base_switch" in predictEvent:
+                    self.log(
+                        f"{predictEventKey} not have the base_switch key configured,  Please refer to apps.yaml of appDeamon", level="WARNING")
+                else:
+                    Config_predictsEventBaseSwitch = predictEvent["base_switch"]
+                    Config_daysHistory = _config.currentConfig['historyday']
+                    self.log(
+                        f"Get {Config_predictsEventBaseSwitch} history from {Config_daysHistory} days ago ...", level="INFO")
+                    baseSwitchHistory = _historydb.getHistory(start=_utility.calculateDateTimeDiffernce(
+                        _constant.Now, days=Config_daysHistory), end=_constant.Now, entity_id=Config_predictsEventBaseSwitch)
+
+                    if not baseSwitchHistory:
+                        self.log(
+                            f"history of {Config_predictsEventBaseSwitch} entity did not produce any results", level="ERROR")
+                    else:
+                        lasthistory_datetime = baseSwitchHistory[0]['last_changed']
+                        self.log(
+                            f"{len(baseSwitchHistory)} history's item of {Config_predictsEventBaseSwitch} from {_utility.convertStringToDateTime(lasthistory_datetime)}")
 
 
 # import datetime
