@@ -240,6 +240,10 @@ class historyDB:
                 'last_changed': self._constant.EVENT_TIME,
                 'entity_id': self._constant.EVENT_ENTITYID})
 
+        # rounds the data by roundtimeevents
+        pd_result[self._constant.EVENT_TIME] = pd_result[self._constant.EVENT_TIME].apply(lambda dt: datetime(
+            dt.year, dt.month, dt.day, dt.hour, 15*(dt.minute // self._config.currentConfig['roundtimeevents'])))
+
         return pd_result
 
 
@@ -308,33 +312,58 @@ class HassPredictSwitch(hass.Hass):
             self.log(
                 "No event to predict specified in the configuration, please refer to apps.yaml of appDeamon", level="WARNING")
         else:
+
+            # cycle for predictEventKey
             for predictEventKey in list(Config_predictsEvents.keys()):
 
-                predictEvent = Config_predictsEvents[predictEventKey]
+                # get event Detail Configuration
+                predictEventDetailConfig = Config_predictsEvents[predictEventKey]
 
-                if not "base_switch" in predictEvent:
+                if not "base_switch" in predictEventDetailConfig:
                     self.log(
                         f"< {predictEventKey} > not have the base_switch key configured, please refer to apps.yaml of appDeamon", level="WARNING")
                 else:
-                    Config_predictsEventBaseSwitch = predictEvent["base_switch"]
+                    Config_predictsEventBaseSwitch = predictEventDetailConfig["base_switch"]
                     Config_daysHistory = _config.currentConfig['historyday']
 
-                    pdHistory = _historydb.getHistory({
+                    pdHistoryDM = _historydb.getHistory({
                         'start': _utility.dateTimeToMidnight(_utility.dateTimeDiffernce(_constant.Now, days=Config_daysHistory)),
                         'stop': _constant.Now,
                         'entityid': Config_predictsEventBaseSwitch
                     })
 
-                    if pdHistory.empty:
+                    if pdHistoryDM.empty:
                         self.log(
                             f"history of {Config_predictsEventBaseSwitch} using {'influxDB' if _constant.UseInfluxDB else 'HASS Build-In History'} did not produce any results", level="WARNING")
                     else:
-                        lasthistory_datetime = pdHistory.iloc[1][_constant.EVENT_TIME].strftime(
+                        lasthistory_datetime = pdHistoryDM.iloc[1][_constant.EVENT_TIME].strftime(
                             _constant.DateTimeFormat)
-
                         self.log(
-                            f"Getting {len(pdHistory)} history's item of {Config_predictsEventBaseSwitch} from {lasthistory_datetime}")
+                            f"Getting {len(pdHistoryDM)} history's item of < {Config_predictsEventBaseSwitch} > from {lasthistory_datetime}")
 
+                        # cycle the basedon Entity and get history
+                        for predictEventKey_basedon in list(predictEventDetailConfig['basedon']):
+
+                            pd_basedonHistoryDM = _historydb.getHistory({
+                                'start': _utility.dateTimeToMidnight(_utility.dateTimeDiffernce(_constant.Now, days=Config_daysHistory)),
+                                'stop': _constant.Now,
+                                'entityid': predictEventKey_basedon
+                            })
+
+                            if pd_basedonHistoryDM.empty:
+                                self.log(
+                                    f"history of {predictEventKey_basedon} using {'influxDB' if _constant.UseInfluxDB else 'HASS Build-In History'} did not produce any results", level="WARNING")
+                            else:
+                                lasthistory_datetime = pd_basedonHistoryDM.iloc[1][_constant.EVENT_TIME].strftime(
+                                    _constant.DateTimeFormat)
+                                self.log(
+                                    f"Getting {len(pd_basedonHistoryDM)} history's item of < {predictEventKey_basedon} > from {lasthistory_datetime}")
+
+                                # print(f"p:{pdHistoryDM.size}")
+                                # print(f"q:{pd_basedonHistoryDM.size}")
+                                # # merge this data with pdHistoryDM
+                                # pd.concat([pdHistoryDM, pd_basedonHistoryDM])
+                                # print(f"d:{pdHistoryDM.size}")
 
 # import datetime
 # import time
