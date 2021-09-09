@@ -56,10 +56,12 @@ class Constant:
         self.DateTimeFormat = "%Y-%m-%d %H:%M:%S"
         self.DateTimeFormat_T = "%Y-%m-%dT%H:%M:%SZ"
         self.DateTimeFormat_TZ = "%Y-%m-%dT%H:%M:%S+00:00"
+        self.DateTimeFormat_sTZ = "%Y-%m-%dT%H:%M:%S+00:00"
         self.DateTimeFormat_msTZ = "%Y-%m-%dT%H:%M:%S.%f+00:00"
         self.Time_short = "%H:%M"
         self.Path_Model = "models"
         self.UseInfluxDB = False
+        self.UseHassBuildInDB = False
         self.Now = datetime.now()
 
         self.EVENT_TIME = "#time"
@@ -96,6 +98,7 @@ class Config:
         self.configParms = self._hass.args["config"]
         self.currentConfig = {}
         self.useInfluxDB = False
+        self.UseHassBuildInDB = False
 
         # default value of parameters
         self.defaultParams = {
@@ -115,6 +118,9 @@ class Config:
         if self.currentConfig["useinfluxdb"]:
             # setup the influxDB boolean
             self._constant.UseInfluxDB = True
+        else:
+          # setup the hassBuildin DB boolean
+            self._constant.UseHassBuildInDB = True
 
     """
     Config Class:
@@ -167,6 +173,7 @@ class historyDB:
                 self._hass.log(
                     "InfluxDB enabled but library are not loaded in AppDeamon, fallback to HASS history (limited!)", level="WARNING")
                 self._constant.UseInfluxDB = False
+                self._constant.UseHassBuildInDB = True
 
             try:
                 # set the influxDB config
@@ -177,6 +184,7 @@ class historyDB:
                 self._hass.log(
                     "InfluxDB is enabled but not configured correctly, fallback to HASS history (limited!)", level="WARNING")
                 self._constant.UseInfluxDB = False
+                self._constant.UseHassBuildInDB = True
 
     """
     historyDB Class:
@@ -209,6 +217,28 @@ class historyDB:
                 '_value': self._constant.EVENT_VALUE,
                 '_time': self._constant.EVENT_TIME,
                 '_entity_id': self._constant.EVENT_ENTITYID})
+
+        if self._constant.UseHassBuildInDB:
+            self._hass.log(f"Asking HASS BuildIn history DB ...")
+
+            # using HassBuildInDB
+            hasshistory = self._hass.get_history(entity_id=kwargs['entityid'] if 'entityid' in kwargs else "*", start_time=kwargs['start']
+                                                 if 'start' in kwargs else self._constant.Now, end_time=kwargs['stop'] if 'stop' in kwargs else self._constant.Now)[0]
+
+            # convert last_changed to datetime
+            for h in hasshistory:
+                h['last_changed'] = datetime.strptime(
+                    h['last_changed'], self._constant.DateTimeFormat_msTZ if "." in h['last_changed'] else self._constant.DateTimeFormat_sTZ)
+
+            # get dataFrame results
+            df_result = pd.DataFrame(hasshistory, columns=[
+                                     'last_changed', 'state', 'entity_id'])
+
+            # convert it to Pandas and rename useful fields
+            pd_result = df_result.rename(columns={
+                'state': self._constant.EVENT_VALUE,
+                'last_changed': self._constant.EVENT_TIME,
+                'entity_id': self._constant.EVENT_ENTITYID})
 
         return pd_result
 
@@ -276,7 +306,7 @@ class HassPredictSwitch(hass.Hass):
         Config_predictsEvents = _config.currentConfig['predictsevents']
         if not Config_predictsEvents:
             self.log(
-                "No event to predict specified in the configuration. Please refer to apps.yaml of appDeamon", level="WARNING")
+                "No event to predict specified in the configuration, please refer to apps.yaml of appDeamon", level="WARNING")
         else:
             for predictEventKey in list(Config_predictsEvents.keys()):
 
@@ -284,7 +314,7 @@ class HassPredictSwitch(hass.Hass):
 
                 if not "base_switch" in predictEvent:
                     self.log(
-                        f"{predictEventKey} not have the base_switch key configured,  Please refer to apps.yaml of appDeamon", level="WARNING")
+                        f"< {predictEventKey} > not have the base_switch key configured, please refer to apps.yaml of appDeamon", level="WARNING")
                 else:
                     Config_predictsEventBaseSwitch = predictEvent["base_switch"]
                     Config_daysHistory = _config.currentConfig['historyday']
