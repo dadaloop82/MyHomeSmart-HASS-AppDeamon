@@ -34,15 +34,18 @@
 # - If the probability of activation is very high,
 # - the action could be performed automatically without any iteration with the user.
 #
-#
-# influxdb_client are installed with requirements.txt [...]/appdeamon/config/apps/
+# Dependencies:
+# - numpy (**installation are very slow, be patient!**)
+# - pandas (**installation are very slow, be patient!**)
+# - influxdb-client
+
 # from influxdb_client import InfluxDBClient
 
 # python module imports
 import hassapi as hass
 import pytz
 from datetime import datetime, timedelta
-
+import pandas as pd
 """
 Constant and Variables
 """
@@ -51,12 +54,26 @@ Constant and Variables
 class Constant:
     def __init__(self):
         self.DateTimeFormat = "%Y-%m-%d %H:%M:%S"
+        self.DateTimeFormat_T = "%Y-%m-%dT%H:%M:%SZ"
         self.DateTimeFormat_TZ = "%Y-%m-%dT%H:%M:%S+00:00"
         self.DateTimeFormat_msTZ = "%Y-%m-%dT%H:%M:%S.%f+00:00"
         self.Time_short = "%H:%M"
         self.Path_Model = "models"
         self.UseInfluxDB = False
         self.Now = datetime.now()
+
+        self.EVENT_TIME = "#time"
+        self.EVENT_VALUE = "#value"
+        self.EVENT_ENTITYID = "#entityid"
+
+        self.influxDB_Qhistory = '''
+                                from(bucket: "{bucket}")
+                                |> range(start: {start}, stop: {stop})
+                                |> filter(fn: (r) => r["domain"] == "{domain}")
+                                |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
+                                |> sort(columns:["_time"])
+                                |> yield(name: "mean")
+                                '''
 
 
 """
@@ -66,15 +83,16 @@ Config Class
 
 class Config:
     """
-    Config Class:   Init
+    Config Class:
                   - read the configuration
-                  - set default config parameters      
+                  - set default config parameters
                   - set flag for UseInfluxDB
     """
 
     def __init__(self, hass, constant):
         self._hass = hass
-        self.constant = constant
+        self._constant = constant
+
         self.configParms = self._hass.args["config"]
         self.currentConfig = {}
         self.useInfluxDB = False
@@ -96,20 +114,21 @@ class Config:
         # set the useInfluxDB flag
         if self.currentConfig["useinfluxdb"]:
             # setup the influxDB boolean
-            self.constant.UseInfluxDB = True
+            self._constant.UseInfluxDB = True
 
     """
-    Config Class:   readConfig
+    Config Class:
                     read the configuration's value from apps.yaml
                     and apply default who key is missing
     """
 
     def readConfig(self) -> object:
+        # set the current configuration
         self.currentConfig = self.configParms
+
+        # set the default config value when missing
         for key, value in self.defaultParams.items():
-            if key in self.configParms:
-                self.currentConfig[key] = self.configParms[key]
-            else:
+            if not key in self.configParms:
                 self.currentConfig[key] = value
 
 
@@ -120,7 +139,7 @@ HassIO history manager (build-in history and influxDB )
 
 class historyDB:
     """
-    historyDB Class:   Init
+    historyDB Class:
                       - if UseInfluxDB are true, load the PIP module (must be added in appDeamon!)
                       - setup the connection
                       - do a query for test
@@ -131,65 +150,67 @@ class historyDB:
         self._utility = utility
         self._constant = constant
         self._config = config
+
         self.influxDB_client = None
         self.InfluxDB_module = None
         self.influxDB_queryapi = None
         self.influxDB_config = None
+
         if constant.UseInfluxDB:
+            # using influDB
+
             try:
+                # import the module
                 influxbModule = __import__("influxdb_client")
                 self.InfluxDB_module = influxbModule.InfluxDBClient
             except:
                 self._hass.log(
                     "InfluxDB enabled but library are not loaded in AppDeamon, fallback to HASS history (limited!)", level="WARNING")
                 self._constant.UseInfluxDB = False
-        if constant.UseInfluxDB:
+
             try:
                 # set the influxDB config
                 self.influxDB_config = self._config.currentConfig['influxdb']
-                if constant.UseInfluxDB:
-                    self.influxDB_client = self.InfluxDB_module(
-                        url=self.influxDB_config['url'], token=self.influxDB_config['token'], org=self.influxDB_config['org'])
-                    self.influxDB_queryapi = self.influxDB_client.query_api()
+                self.influxDB_client = self.InfluxDB_module(
+                    url=self.influxDB_config['url'], token=self.influxDB_config['token'], org=self.influxDB_config['org'])
             except:
                 self._hass.log(
                     "InfluxDB is enabled but not configured correctly, fallback to HASS history (limited!)", level="WARNING")
                 self._constant.UseInfluxDB = False
-        end = self._constant.Now
-        start = self._utility.calculateDateTimeDiffernce(
-            self._constant.Now, minutes=1)
-        if not self.getHistory(start=start, end=end):
-            self._hass.log(
-                "Cannot ask history - please check Appdeamon or HASS config", level="ERROR")
 
     """
-    historyDB Class:    getHistory
+    historyDB Class:
                         Get history with actived module (HASS build-in or influxDB)
-                        > **kwargs  (dict arguments)  arguments (ex: start=[dt], end=[dt])
+                        > kwargs  (dict arguments)  arguments (ex: start=[dt], end=[dt])
     """
 
-    def getHistory(self, **kwargs) -> object:
-        ret = None
-        try:
-            if self._constant.UseInfluxDB:
-                print("todo")
-                # influxDBquery = f'''
-                #   from(bucket:"{self.influxDB_config['bucket']}") |> range(start: {start}, stop: {end})
-                #   '''
-                # historyObj = self.influxDB_queryapi.query(influxDBquery)
-            else:
-                hasshistoryDBquery = dict()
-                if 'entity_id' in kwargs:
-                    hasshistoryDBquery['entity_id'] = kwargs['entity_id']
-                if 'start' in kwargs:
-                    hasshistoryDBquery['start_time'] = kwargs['start']
-                if 'end' in kwargs:
-                    hasshistoryDBquery['end_time'] = kwargs['end']
-                if hasshistoryDBquery:
-                    ret = self._hass.get_history(**hasshistoryDBquery)[0]
-        except:
-            return None
-        return ret
+    def getHistory(self, kwargs) -> object:
+
+        if self._constant.UseInfluxDB:
+            self._hass.log(f"Asking influxDb ...")
+            # using influxDB
+            q = self._constant.influxDB_Qhistory.format(
+                bucket=self.influxDB_config['bucket'],
+                start=kwargs['start'].strftime(
+                    self._constant.DateTimeFormat_T) if 'start' in kwargs else self._constant.Now.strftime(
+                    self._constant.DateTimeFormat_T),
+                stop=kwargs['stop'].strftime(
+                    self._constant.DateTimeFormat_T) if 'stop' in kwargs else self._constant.Now.strftime(
+                    self._constant.DateTimeFormat_T),
+                domain=kwargs['entityid'].split(
+                    ".")[0] if 'entityid' in kwargs else "*",
+                entity_id=kwargs['entityid'].split(".")[1] if 'entityid' in kwargs else "*")
+
+            # get dataFrame results
+            df_result = self.influxDB_client.query_api().query_data_frame(q)
+
+            # convert it to Pandas and rename useful fields
+            pd_result = pd.concat(df_result).rename(columns={
+                '_value': self._constant.EVENT_VALUE,
+                '_time': self._constant.EVENT_TIME,
+                '_entity_id': self._constant.EVENT_ENTITYID})
+
+        return pd_result
 
 
 """
@@ -199,7 +220,7 @@ Utility Class
 
 class Utility:
     """
-      Utility Class:   Init                    
+      Utility Class:   Init
     """
 
     def __init__(self, hass, constant):
@@ -207,32 +228,23 @@ class Utility:
         self._constant = constant
 
     """
-    Utility Class:    calculateDateTimeDiffernce
+    Utility Class:
                       Calculate the datetime difference and return the datetime object
                       > dtobj     (datetime object) the datetime context
                       > **kwargs  (dict arguments)  arguments (ex: minutes=1)
     """
 
-    def calculateDateTimeDiffernce(self, dtobj, **kwargs) -> datetime:
+    def dateTimeDiffernce(self, dtobj, **kwargs) -> datetime:
         return dtobj - timedelta(**kwargs)
 
     """
-    Utility Class:    convertDateTimeToString
-                      Convert datetime object in string with TZ format
-                      > dtobj     (datetime object) the datetime context                      
-    """
-
-    def convertDateTimeToString(self, dtobj) -> str:
-        return dtobj.strftime(self._constant.DateTimeFormat_TZ)
-
-    """
-    Utility Class:    convertStringToDateTime
-                      Detects if the datetime string contains a timezone notation 
+    Utility Class:
+                      Detects if the datetime string contains a timezone notation
                       and converts the string to a datetime object
-                      > dtstring    (string) the datetime context                      
+                      > dtstring    (string) the datetime context
     """
 
-    def convertStringToDateTime(self, dtstring) -> datetime:
+    def stringToDateTime(self, dtstring) -> datetime:
         if "." in dtstring:
             dtstring = datetime.strptime(
                 dtstring, self._constant.DateTimeFormat_msTZ).strftime(self._constant.DateTimeFormat)
@@ -241,13 +253,16 @@ class Utility:
         return dtstring
 
     """
-    Utility Class:    convertDateTimeToIsoTimezone
+    Utility Class:
                       Convert datetime object in ISO with timezone
-                      > dtobj     (datetime object) the datetime context                      
+                      > dtobj     (datetime object) the datetime context
     """
 
-    def convertDateTimeToIsoTimezone(self, dtobj) -> datetime:
+    def dateTimeToIsoTimezone(self, dtobj) -> datetime:
         return dtobj.replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def dateTimeToMidnight(self, dtobj) -> datetime:
+        return dtobj.replace(hour=0, minute=0, second=00)
 
 
 class HassPredictSwitch(hass.Hass):
@@ -266,7 +281,6 @@ class HassPredictSwitch(hass.Hass):
             for predictEventKey in list(Config_predictsEvents.keys()):
 
                 predictEvent = Config_predictsEvents[predictEventKey]
-                baseSwitchHistory = {}
 
                 if not "base_switch" in predictEvent:
                     self.log(
@@ -274,18 +288,22 @@ class HassPredictSwitch(hass.Hass):
                 else:
                     Config_predictsEventBaseSwitch = predictEvent["base_switch"]
                     Config_daysHistory = _config.currentConfig['historyday']
-                    self.log(
-                        f"Get {Config_predictsEventBaseSwitch} history from {Config_daysHistory} days ago ...", level="INFO")
-                    baseSwitchHistory = _historydb.getHistory(start=_utility.calculateDateTimeDiffernce(
-                        _constant.Now, days=Config_daysHistory), end=_constant.Now, entity_id=Config_predictsEventBaseSwitch)
 
-                    if not baseSwitchHistory:
+                    pdHistory = _historydb.getHistory({
+                        'start': _utility.dateTimeToMidnight(_utility.dateTimeDiffernce(_constant.Now, days=Config_daysHistory)),
+                        'stop': _constant.Now,
+                        'entityid': Config_predictsEventBaseSwitch
+                    })
+
+                    if pdHistory.empty:
                         self.log(
-                            f"history of {Config_predictsEventBaseSwitch} entity did not produce any results", level="ERROR")
+                            f"history of {Config_predictsEventBaseSwitch} using {'influxDB' if _constant.UseInfluxDB else 'HASS Build-In History'} did not produce any results", level="WARNING")
                     else:
-                        lasthistory_datetime = baseSwitchHistory[0]['last_changed']
+                        lasthistory_datetime = pdHistory.iloc[1][_constant.EVENT_TIME].strftime(
+                            _constant.DateTimeFormat)
+
                         self.log(
-                            f"{len(baseSwitchHistory)} history's item of {Config_predictsEventBaseSwitch} from {_utility.convertStringToDateTime(lasthistory_datetime)}")
+                            f"Getting {len(pdHistory)} history's item of {Config_predictsEventBaseSwitch} from {lasthistory_datetime}")
 
 
 # import datetime

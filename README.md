@@ -7,7 +7,7 @@
 #### *I am Italian, sorry for any mistakes in English.*
 
 -----
-### **06 Sep 2021** : Code has been completely redone and optimized, adding influxDB integration
+### **06 Sep 2021** : Code has been completely refactor and optimized, adding influxDB integration
 -----
 
 # I have a dream: make my life smarter!
@@ -18,8 +18,22 @@ If the probability of activation is very high, the action could be performed aut
 # Ingredients:
 - Working instance of **Home Assistant** (https://www.home-assistant.io/)
 - Working addon **appDeamon** for HASS (https://github.com/AppDaemon/appdaemon)
+- Dependencies installed in appdeamon (see dependencies section)
 - Optional **influxDB database** - otherwise takes data from **HASS history** (they are limited!)
 - A minimal knowledge of Python and how appDeamon works
+
+# Dependencies 
+*(specified in /appdeamon/config/apps/requirements.txt)*
+- numpy (**installation are very slow, be patient!**)
+- pandas (**installation are very slow, be patient!**)
+- influxdb-client
+
+
+# HomeAssistant build-in history or influxDB ?
+
+It doesn't matter now.
+It is possible to activate in the settings the reading from influxDB (with the configuration parameters in "secret.yaml") and read from a database with a very long data retention.
+If this doesn't work or you don't have influxDB, the HomeAssistant history is automatically read, even if it is rather limited.
 
 # Use case example
 
