@@ -92,7 +92,7 @@ class Constant:
                                 |> range(start: {start}, stop: {stop})
                                 |> filter(fn: (r) => r["domain"] == "{domain}")
                                 |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
-                                |> filter(fn: (r) => r["_field"] == "state")
+                                |> filter(fn: (r) => r["_field"] == "{fieldtype}")
                                 |> drop(columns:["_field", "_measurement", "friendly_name", "source","_start","_stop","domain","entity_id"])
                                 |> sort(columns:["_time"])
                                 |> yield(name: "mean")
@@ -229,7 +229,9 @@ class predictionUtil:
                     self._constant.DateTimeFormat_T),
                 domain=kwargs['entityid'].split(
                     ".")[0] if 'entityid' in kwargs else "*",
-                entity_id=kwargs['entityid'].split(".")[1] if 'entityid' in kwargs else "*")
+                entity_id=kwargs['entityid'].split(
+                    ".")[1] if 'entityid' in kwargs else "*",
+                fieldtype="state" if kwargs['entityid'].split(".")[0] in ["switch", "person", "binary_sensor"] else "value")
 
             # get Pandas results
             # print(q)
@@ -289,10 +291,21 @@ class predictionUtil:
 
         return (pd_result, first_DT, last_DT)
 
+    """
+    setSituations Class:
+                        Combine the based entity id with baseswitch entity id and search situations
+                        > masterPD  (pandas)  pandasObject Master (baseSwitch)
+                        > slavePD  (pandas)  pandasObject SlavePD (basedOnSwitch)
+    """
+
     def setSituations(self, masterPD, slavePD) -> pd:
         if slavePD.empty or masterPD.empty:
             return False
         slaveEntityID = slavePD.iloc[1][self._constant.EVENT_ENTITYID]
+        masterEntityID = masterPD.iloc[1][self._constant.EVENT_ENTITYID]
+
+        self._hass.log(
+            f"Combine < {masterEntityID} > with < {slaveEntityID} > and search situations")
 
         masterPD[slaveEntityID] = masterPD.index.to_series().apply(
             lambda x:  slavePD.iloc[slavePD.index.get_loc(x, method='nearest')]['value'])
@@ -437,10 +450,6 @@ class HassPredictSwitch(hass.Hass):
                                 # combine the data
                                 pdHistoryDM = _predictionUtil.setSituations(
                                     pdHistoryDM, pdbasedonHistoryDM)
-
-                                # !! Debug !!
-                                pdbasedonHistoryDM.to_csv(os.path.join(
-                                    _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey_basedon}.csv"), sep='\t', encoding='utf-8')
 
                 # !! Debug !!
                 pdHistoryDM.to_csv(os.path.join(
