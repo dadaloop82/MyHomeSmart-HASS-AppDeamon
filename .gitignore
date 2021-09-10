@@ -131,3 +131,4 @@ dmypy.json
 # models
 /models
 (todelete)*
+*.csv

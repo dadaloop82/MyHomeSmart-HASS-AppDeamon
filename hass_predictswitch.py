@@ -453,4 +453,4 @@ class HassPredictSwitch(hass.Hass):
 
                 # !! Debug !!
                 pdHistoryDM.to_csv(os.path.join(
-                    _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
+                    _constant.Currentfolder, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
