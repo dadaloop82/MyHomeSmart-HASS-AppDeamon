@@ -20,6 +20,9 @@ If the probability of activation is very high, the action could be performed aut
 * Pandas DataFrame is used for time management, and the following factors are considered, in addition to the date and time
   * Weekday
   * Season
+  * Quarter
+  * Beginning/end of the month
+  * Week of Day
 
 
 
