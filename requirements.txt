@@ -3,3 +3,4 @@ python-dateutil
 numpy
 influxdb-client
 pandas==1.2.5
+sklearn
