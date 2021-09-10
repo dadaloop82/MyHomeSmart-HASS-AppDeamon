@@ -23,8 +23,14 @@ If the probability of activation is very high, the action could be performed aut
   * Quarter
   * Beginning/end of the month
   * Week of Day
+* Search for the situation that existed before the change and integrate it into the frame
 
+# What's missing?
 
+* Machine Learning approach (probabilistic scikit learn) for event prediction and model creation
+* Event detection
+* Probability management
+* Management of the above events
 
 # Ingredients:
 - Working instance of **Home Assistant** (https://www.home-assistant.io/)
