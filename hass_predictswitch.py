@@ -289,19 +289,13 @@ class predictionUtil:
 
         return (pd_result, first_DT, last_DT)
 
-    def searchSituations(self, masterPD, slavePD) -> pd:
+    def setSituations(self, masterPD, slavePD) -> pd:
         if slavePD.empty or masterPD.empty:
             return False
         slaveEntityID = slavePD.iloc[1][self._constant.EVENT_ENTITYID]
 
-        print(slaveEntityID)
-
-        # masterPD[slaveEntityID] = slavePD[self._constant.EVENT_TIME].apply(
-
-        # dt = pd.to_datetime("2016-11-13 22:01:25.450")
-        # print(slavePD.index.get_loc(dt, method='nearest'))
-
-        # (slavePD.index.get_loc(x[self._constant.EVENT_TIME], method='nearest'))
+        masterPD[slaveEntityID] = masterPD.index.to_series().apply(
+            lambda x:  slavePD.iloc[slavePD.index.get_loc(x, method='nearest')]['value'])
 
         return masterPD
 
@@ -441,7 +435,7 @@ class HassPredictSwitch(hass.Hass):
                                     f"Getting {len(pdbasedonHistoryDM)} history's item of < {predictEventKey_basedon} > from {firstDT}")
 
                                 # combine the data
-                                pdHistoryDM = _predictionUtil.searchSituations(
+                                pdHistoryDM = _predictionUtil.setSituations(
                                     pdHistoryDM, pdbasedonHistoryDM)
 
                                 # !! Debug !!
