@@ -74,8 +74,18 @@ class Constant:
 
         self.EVENT_TIME_HOUR = "hour"
         self.EVENT_TIME_MINUTE = "minute"
+
+        self.EVENT_TIME_DAY = "day"
+        self.EVENT_TIME_MONTH = "month"
+        self.EVENT_TIME_YEAR = "year"
+
         self.EVENT_TIME_WEEKDAY = "weekday"
         self.EVENT_TIME_SEASON = "season"
+
+        self.EVENT_TIME_WEEKOFYEAR = "weekofyear"
+        self.EVENT_TIME_QUARTER = "quarter"
+        self.EVENT_TIME_MONTHSTART = "monthstart"
+        self.EVENT_TIME_MONTHEND = "monthend"
 
         self.influxDB_Qhistory = '''
                                 from(bucket: "{bucket}")
@@ -152,9 +162,9 @@ HassIO history manager (build-in history and influxDB )
 """
 
 
-class historyDB:
+class predictionUtil:
     """
-    historyDB Class:
+    predictionUtil Class:
                       - if UseInfluxDB are true, load the PIP module (must be added in appDeamon!)
                       - setup the connection
                       - do a query for test
@@ -196,12 +206,12 @@ class historyDB:
                 self._constant.UseHassBuildInDB = True
 
     """
-    historyDB Class:
+    predictionUtil Class:
                         Get history with actived module (HASS build-in or influxDB)
                         > kwargs  (dict arguments)  arguments (ex: start=[dt], end=[dt])
     """
 
-    def getHistory(self, kwargs) -> object:
+    def getHistory(self, kwargs) -> pd:
 
         pd_result = pd.DataFrame()
 
@@ -225,10 +235,11 @@ class historyDB:
             # print(q)
             pd_result = self.influxDB_client.query_api().query_data_frame(
                 q).rename(columns={
-                    '_value': self._constant.EVENT_VALUE,
-                    '_time': self._constant.EVENT_TIME}
-            ).assign(
-                    **{self._constant.EVENT_ENTITYID: kwargs['entityid'] if 'entityid' in kwargs else ""})
+                    '_value': self._constant.EVENT_VALUE, '_time': self._constant.EVENT_TIME}).assign(
+                **{self._constant.EVENT_ENTITYID: kwargs['entityid'] if 'entityid' in kwargs else ""}).set_index(self._constant.EVENT_TIME)
+
+            pd_result.rename(columns={
+                '_value': self._constant.EVENT_VALUE, '_time': self._constant.EVENT_TIME})
 
         if self._constant.UseHassBuildInDB:
             self._hass.log(
@@ -245,38 +256,54 @@ class historyDB:
 
             # get dataFrame results
             df_result = pd.DataFrame(hasshistory, columns=[
-                                     'last_changed', 'state', 'entity_id'])
+                'last_changed', 'state', 'entity_id']).rename(columns={
+                    'state': self._constant.EVENT_VALUE,
+                    'last_changed': self._constant.EVENT_TIME,
+                    'entity_id': self._constant.EVENT_ENTITYID}).set_index(self._constant.EVENT_TIME)
 
             # convert it to Pandas and rename useful fields
             if not df_result.empty:
-                pd_result = df_result.rename(columns={
-                    'state': self._constant.EVENT_VALUE,
-                    'last_changed': self._constant.EVENT_TIME,
-                    'entity_id': self._constant.EVENT_ENTITYID})
+                pd_result = df_result
 
         if not pd_result.empty:
-          # split the #time to
-          # - hour
-          # - minutes
-          # - weekday
-          # - season
-            pd_result[self._constant.EVENT_TIME] = pd.to_datetime(
-                pd_result[self._constant.EVENT_TIME])
-            pd_result[self._constant.EVENT_TIME_HOUR] = pd_result[self._constant.EVENT_TIME].dt.hour
-            pd_result[self._constant.EVENT_TIME_MINUTE] = pd_result[self._constant.EVENT_TIME].dt.minute
-            pd_result[self._constant.EVENT_TIME_WEEKDAY] = pd_result[self._constant.EVENT_TIME].dt.day_of_week
-            pd_result[self._constant.EVENT_TIME_SEASON] = pd_result[self._constant.EVENT_TIME].apply(
+
+          # split the #time
+            pd_result[self._constant.EVENT_TIME_HOUR] = pd_result.index.hour
+            pd_result[self._constant.EVENT_TIME_MINUTE] = pd_result.index.minute
+            pd_result[self._constant.EVENT_TIME_DAY] = pd_result.index.day
+            pd_result[self._constant.EVENT_TIME_HOUR] = pd_result.index.hour
+            pd_result[self._constant.EVENT_TIME_MONTH] = pd_result.index.month
+            pd_result[self._constant.EVENT_TIME_YEAR] = pd_result.index.year
+            pd_result[self._constant.EVENT_TIME_QUARTER] = pd_result.index.quarter
+            pd_result[self._constant.EVENT_TIME_MONTHSTART] = pd_result.index.is_month_start
+            pd_result[self._constant.EVENT_TIME_MONTHEND] = pd_result.index.is_month_end
+            pd_result[self._constant.EVENT_TIME_WEEKDAY] = pd_result.index.day_of_week
+            pd_result[self._constant.EVENT_TIME_SEASON] = pd_result.index.to_series().apply(
                 lambda x:  self._utility.getSeasonByDate(x))
 
             # get first datatime
-            first_DT = pd.to_datetime(
-                pd_result.iloc[1][self._constant.EVENT_TIME])
-            last_DT = pd.to_datetime(
-                pd_result.iloc[-1][self._constant.EVENT_TIME])
-            # delete time column
-            del pd_result[self._constant.EVENT_TIME]
+            first_DT = pd_result.index[0]
+            last_DT = pd_result.index[-1]
+
+            # print(pd_result.iloc[1])
 
         return (pd_result, first_DT, last_DT)
+
+    def searchSituations(self, masterPD, slavePD) -> pd:
+        if slavePD.empty or masterPD.empty:
+            return False
+        slaveEntityID = slavePD.iloc[1][self._constant.EVENT_ENTITYID]
+
+        print(slaveEntityID)
+
+        # masterPD[slaveEntityID] = slavePD[self._constant.EVENT_TIME].apply(
+
+        # dt = pd.to_datetime("2016-11-13 22:01:25.450")
+        # print(slavePD.index.get_loc(dt, method='nearest'))
+
+        # (slavePD.index.get_loc(x[self._constant.EVENT_TIME], method='nearest'))
+
+        return masterPD
 
 
 """
@@ -363,7 +390,7 @@ class HassPredictSwitch(hass.Hass):
         _constant = Constant()
         _config = Config(self, _constant)
         _utility = Utility(self, _constant)
-        _historydb = historyDB(self, _constant, _config, _utility)
+        _predictionUtil = predictionUtil(self, _constant, _config, _utility)
 
         Config_predictsEvents = _config.currentConfig['predictsevents']
         if not Config_predictsEvents:
@@ -384,7 +411,7 @@ class HassPredictSwitch(hass.Hass):
                     Config_predictsEventBaseSwitch = predictEventDetailConfig["base_switch"]
                     Config_daysHistory = _config.currentConfig['historyday']
 
-                    (pdHistoryDM, firstDT, lastDT) = _historydb.getHistory({
+                    (pdHistoryDM, firstDT, lastDT) = _predictionUtil.getHistory({
                         'start': _utility.dateTimeToMidnight(_utility.dateTimeDiffernce(_constant.Now, days=Config_daysHistory)),
                         'stop': _constant.Now,
                         'entityid': Config_predictsEventBaseSwitch
@@ -400,7 +427,7 @@ class HassPredictSwitch(hass.Hass):
                         # cycle the basedon Entity and get history
                         for predictEventKey_basedon in list(predictEventDetailConfig['basedon']):
 
-                            (pdbasedonHistoryDM, firstDT, lastDT) = _historydb.getHistory({
+                            (pdbasedonHistoryDM, firstDT, lastDT) = _predictionUtil.getHistory({
                                 'start': _utility.dateTimeToMidnight(_utility.dateTimeDiffernce(_constant.Now, days=Config_daysHistory)),
                                 'stop': _constant.Now,
                                 'entityid': predictEventKey_basedon
@@ -413,13 +440,17 @@ class HassPredictSwitch(hass.Hass):
                                 self.log(
                                     f"Getting {len(pdbasedonHistoryDM)} history's item of < {predictEventKey_basedon} > from {firstDT}")
 
-                            # !! Debug !!
-                            pdbasedonHistoryDM.to_csv(os.path.join(
-                                _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey_basedon}.csv"), sep='\t', encoding='utf-8')
+                                # combine the data
+                                pdHistoryDM = _predictionUtil.searchSituations(
+                                    pdHistoryDM, pdbasedonHistoryDM)
 
-            # !! Debug !!
-            pdHistoryDM.to_csv(os.path.join(
-                _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
+                                # !! Debug !!
+                                pdbasedonHistoryDM.to_csv(os.path.join(
+                                    _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey_basedon}.csv"), sep='\t', encoding='utf-8')
+
+                # !! Debug !!
+                pdHistoryDM.to_csv(os.path.join(
+                    _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
 
 # import datetime
 # import time
