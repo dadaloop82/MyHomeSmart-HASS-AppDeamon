@@ -61,6 +61,7 @@ class Constant:
         self.DateTimeFormat_msTZ = "%Y-%m-%dT%H:%M:%S.%f+00:00"
         self.Time_short = "%H:%M"
         self.Path_Model = "models"
+        self.Hemisphere = "north"
         self.UseInfluxDB = False
         self.UseHassBuildInDB = False
         self.Now = datetime.now()
@@ -80,8 +81,8 @@ class Constant:
                                 from(bucket: "{bucket}")
                                 |> range(start: {start}, stop: {stop})
                                 |> filter(fn: (r) => r["domain"] == "{domain}")
-                                |> filter(fn: (r) => r["entity_id"] == "{entity_id}")     
-                                |> filter(fn: (r) => r["_field"] == "state")                            
+                                |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
+                                |> filter(fn: (r) => r["_field"] == "state")
                                 |> sort(columns:["_time"])
                                 |> yield(name: "mean")
                                 '''
@@ -235,8 +236,8 @@ class historyDB:
 
             # convert last_changed to datetime
             for h in hasshistory:
-                h['last_changed'] = datetime.timestamp(datetime.strptime(
-                    h['last_changed'], self._constant.DateTimeFormat_msTZ if "." in h['last_changed'] else self._constant.DateTimeFormat_sTZ))
+                h['last_changed'] = datetime.strptime(
+                    h['last_changed'], self._constant.DateTimeFormat_msTZ if "." in h['last_changed'] else self._constant.DateTimeFormat_sTZ)
 
             # get dataFrame results
             df_result = pd.DataFrame(hasshistory, columns=[
@@ -249,15 +250,29 @@ class historyDB:
                     'last_changed': self._constant.EVENT_TIME,
                     'entity_id': self._constant.EVENT_ENTITYID})
 
-        # split the #time to
-        # - hour
-        # - minutes
-        # - weekday
-        # - season
         if not pd_result.empty:
-            pd_result = pd_result.assign(**{self._constant.EVENT_TIME_HOUR: 1})
+          # split the #time to
+          # - hour
+          # - minutes
+          # - weekday
+          # - season
+            pd_result[self._constant.EVENT_TIME] = pd.to_datetime(
+                pd_result[self._constant.EVENT_TIME])
+            pd_result[self._constant.EVENT_TIME_HOUR] = pd_result[self._constant.EVENT_TIME].dt.hour
+            pd_result[self._constant.EVENT_TIME_MINUTE] = pd_result[self._constant.EVENT_TIME].dt.minute
+            pd_result[self._constant.EVENT_TIME_WEEKDAY] = pd_result[self._constant.EVENT_TIME].dt.day_of_week
+            pd_result[self._constant.EVENT_TIME_SEASON] = pd_result[self._constant.EVENT_TIME].apply(
+                lambda x:  self._utility.getSeasonByDate(x))
 
-        return pd_result
+            # get first datatime
+            first_DT = pd.to_datetime(
+                pd_result.iloc[1][self._constant.EVENT_TIME])
+            last_DT = pd.to_datetime(
+                pd_result.iloc[-1][self._constant.EVENT_TIME])
+            # delete time column
+            del pd_result[self._constant.EVENT_TIME]
+
+        return (pd_result, first_DT, last_DT)
 
 
 """
@@ -308,8 +323,34 @@ class Utility:
     def dateTimeToIsoTimezone(self, dtobj) -> datetime:
         return dtobj.replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    """
+    Utility Class:
+                      Transorm the datetime in date in midnight
+                      > dtobj     (datetime object) the datetime context
+    """
+
     def dateTimeToMidnight(self, dtobj) -> datetime:
         return dtobj.replace(hour=0, minute=0, second=00)
+
+    """
+    Utility Class:
+                      Get season number (0/4)
+                      > dtobj     (datetime object) the datetime context
+    """
+
+    def getSeasonByDate(self, dtobj):
+        md = dtobj.month * 100 + dtobj.day
+        if ((md > 320) and (md < 621)):
+            s = 0  # spring
+        elif ((md > 620) and (md < 923)):
+            s = 1  # summer
+        elif ((md > 922) and (md < 1223)):
+            s = 2  # fall
+        else:
+            s = 3  # winter
+        if not self._constant.Hemisphere == 'north':
+            s = (s + 2) % 3
+        return s
 
 
 class HassPredictSwitch(hass.Hass):
@@ -339,7 +380,7 @@ class HassPredictSwitch(hass.Hass):
                     Config_predictsEventBaseSwitch = predictEventDetailConfig["base_switch"]
                     Config_daysHistory = _config.currentConfig['historyday']
 
-                    pdHistoryDM = _historydb.getHistory({
+                    (pdHistoryDM, firstDT, lastDT) = _historydb.getHistory({
                         'start': _utility.dateTimeToMidnight(_utility.dateTimeDiffernce(_constant.Now, days=Config_daysHistory)),
                         'stop': _constant.Now,
                         'entityid': Config_predictsEventBaseSwitch
@@ -349,15 +390,13 @@ class HassPredictSwitch(hass.Hass):
                         self.log(
                             f"history of {Config_predictsEventBaseSwitch} using {'influxDB' if _constant.UseInfluxDB else 'HASS Build-In History'} did not produce any results", level="WARNING")
                     else:
-                        lasthistory_datetime = datetime.fromtimestamp(pdHistoryDM.iloc[1][_constant.EVENT_TIME]).strftime(
-                            _constant.DateTimeFormat)
                         self.log(
-                            f"Getting {len(pdHistoryDM)} history's item of < {Config_predictsEventBaseSwitch} > from {lasthistory_datetime}")
+                            f"Getting {len(pdHistoryDM)} history's item of < {Config_predictsEventBaseSwitch} > from {firstDT}")
 
                         # cycle the basedon Entity and get history
                         for predictEventKey_basedon in list(predictEventDetailConfig['basedon']):
 
-                            pdbasedonHistoryDM = _historydb.getHistory({
+                            (pdbasedonHistoryDM, firstDT, lastDT) = _historydb.getHistory({
                                 'start': _utility.dateTimeToMidnight(_utility.dateTimeDiffernce(_constant.Now, days=Config_daysHistory)),
                                 'stop': _constant.Now,
                                 'entityid': predictEventKey_basedon
@@ -367,10 +406,8 @@ class HassPredictSwitch(hass.Hass):
                                 self.log(
                                     f"history of {predictEventKey_basedon} using {'influxDB' if _constant.UseInfluxDB else 'HASS Build-In History'} did not produce any results", level="WARNING")
                             else:
-                                lasthistory_datetime = datetime.fromtimestamp(pdbasedonHistoryDM.iloc[1][_constant.EVENT_TIME]).strftime(
-                                    _constant.DateTimeFormat)
                                 self.log(
-                                    f"Getting {len(pdbasedonHistoryDM)} history's item of < {predictEventKey_basedon} > from {lasthistory_datetime}")
+                                    f"Getting {len(pdbasedonHistoryDM)} history's item of < {predictEventKey_basedon} > from {firstDT}")
 
                             pdbasedonHistoryDM.to_csv(os.path.join(
                                 _constant.Currentfolder, f"{predictEventKey_basedon}.csv"), sep='\t', encoding='utf-8')
