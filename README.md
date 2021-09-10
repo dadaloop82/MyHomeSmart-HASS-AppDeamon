@@ -2,18 +2,26 @@
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
-### **WORK IN PROGRESS - CURRENTLY NOT COMPLETE AND NOT WORK**
-### This is an idea under development (when I have free time)
-#### *I am Italian, sorry for any mistakes in English.*
-
------
-### **06 Sep 2021** : Code has been completely refactor and optimized, adding influxDB integration
------
+## HASS + appDeamon + Pandas (+ influxDB)
 
 # I have a dream: make my life smarter!
 Based on the analysis of the change of a certain switch (set in configuration), the system analyzes the change of the sensors in that moment
 So it creates a model, divided by periods (including seasons, etc. ..) trying to guess their habits and if the conditions are similar, it proposes via Alexa the activation of the switch, learning from the answers given.
 If the probability of activation is very high, the action could be performed automatically without any iteration with the user.
+
+### **WORK IN PROGRESS - CURRENTLY NOT COMPLETE AND NOT WORK**
+### This is an idea under development (when I have free time)
+#### *I am Italian, sorry for any mistakes in English.*
+
+
+# Last news
+* Code has been completely refactor and optimized, adding influxDB integration
+* If the influxDB connection or instance should not exist, the program automatically relies on the built-in history of Home Assistant
+* Pandas DataFrame is used for time management, and the following factors are considered, in addition to the date and time
+  * Weekday
+  * Season
+
+
 
 # Ingredients:
 - Working instance of **Home Assistant** (https://www.home-assistant.io/)

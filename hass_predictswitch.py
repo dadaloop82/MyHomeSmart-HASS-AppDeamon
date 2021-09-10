@@ -83,6 +83,7 @@ class Constant:
                                 |> filter(fn: (r) => r["domain"] == "{domain}")
                                 |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
                                 |> filter(fn: (r) => r["_field"] == "state")
+                                |> drop(columns:["_field", "_measurement", "friendly_name", "source","_start","_stop","domain","entity_id"])
                                 |> sort(columns:["_time"])
                                 |> yield(name: "mean")
                                 '''
@@ -205,7 +206,8 @@ class historyDB:
         pd_result = pd.DataFrame()
 
         if self._constant.UseInfluxDB:
-            self._hass.log(f"Asking influxDb ...")
+            self._hass.log(
+                f"Asking influxDb for < {kwargs['entityid'] if 'entityid' in kwargs else ''} > history")
             # using influxDB
             q = self._constant.influxDB_Qhistory.format(
                 bucket=self.influxDB_config['bucket'],
@@ -220,15 +222,17 @@ class historyDB:
                 entity_id=kwargs['entityid'].split(".")[1] if 'entityid' in kwargs else "*")
 
             # get Pandas results
+            # print(q)
             pd_result = self.influxDB_client.query_api().query_data_frame(
                 q).rename(columns={
                     '_value': self._constant.EVENT_VALUE,
-                    '_time': self._constant.EVENT_TIME,
-                    'domain': self._constant.EVENT_DOMAIN,
-                    'entity_id': self._constant.EVENT_ENTITYID})
+                    '_time': self._constant.EVENT_TIME}
+            ).assign(
+                    **{self._constant.EVENT_ENTITYID: kwargs['entityid'] if 'entityid' in kwargs else ""})
 
         if self._constant.UseHassBuildInDB:
-            self._hass.log(f"Asking HASS BuildIn history DB ...")
+            self._hass.log(
+                f"Asking Hass(build-in History) for < {kwargs['entityid'] if 'entityid' in kwargs else ''} > history")
 
             # using HassBuildInDB
             hasshistory = self._hass.get_history(entity_id=kwargs['entityid'] if 'entityid' in kwargs else "*", start_time=kwargs['start']
@@ -409,11 +413,13 @@ class HassPredictSwitch(hass.Hass):
                                 self.log(
                                     f"Getting {len(pdbasedonHistoryDM)} history's item of < {predictEventKey_basedon} > from {firstDT}")
 
+                            # !! Debug !!
                             pdbasedonHistoryDM.to_csv(os.path.join(
-                                _constant.Currentfolder, f"{predictEventKey_basedon}.csv"), sep='\t', encoding='utf-8')
+                                _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey_basedon}.csv"), sep='\t', encoding='utf-8')
 
+            # !! Debug !!
             pdHistoryDM.to_csv(os.path.join(
-                _constant.Currentfolder, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
+                _constant.Currentfolder, _constant.Path_Model, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
 
 # import datetime
 # import time
