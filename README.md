@@ -70,7 +70,7 @@ Warning: all these automatic automations are based on actions already performed 
 
 
 
-## Want to help? You are welcome!
+# Want to help? You are welcome!
 This is and shall be an open, free and non-profit project; the goal is to create an automated system to manage situations in HomeAssistant.
 
 Or, if you want to thank me for what I do by buying me a coffee:
