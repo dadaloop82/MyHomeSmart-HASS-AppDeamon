@@ -2,7 +2,7 @@
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
-## HASS + appDeamon + Pandas (+ influxDB)
+## HASS + appDeamon + Pandas + sklearn (+ influxDB)
 
 # I have a dream: make my life smarter!
 Based on the analysis of the change of a certain switch (set in configuration), the system analyzes the change of the sensors in that moment
@@ -41,9 +41,13 @@ If the probability of activation is very high, the action could be performed aut
 
 # Dependencies 
 *(specified in /appdeamon/config/apps/requirements.txt)*
-- numpy (**installation are very slow, be patient!**)
-- pandas (**installation are very slow, be patient!**)
+- pytz
+- python-dateutil
+- numpy ==1.20.0 (**installation are very slow, be patient!**)
+- pandas ==1.2.5 (**installation are very slow, be patient!**)
 - influxdb-client
+- sklearn
+
 
 
 # HomeAssistant build-in history or influxDB ?

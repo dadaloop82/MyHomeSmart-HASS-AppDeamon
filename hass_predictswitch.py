@@ -38,6 +38,7 @@
 # - numpy (**installation are very slow, be patient!**)
 # - pandas (**installation are very slow, be patient!**)
 # - influxdb-client
+# - sklearn
 
 # from influxdb_client import InfluxDBClient
 
@@ -47,6 +48,12 @@ import pytz
 from datetime import datetime, timedelta
 import pandas as pd
 import os
+from sklearn import model_selection
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error
+from math import sqrt
 """
 Constant and Variables
 """
@@ -97,6 +104,14 @@ class Constant:
                                 |> sort(columns:["_time"])
                                 |> yield(name: "mean")
                                 '''
+
+        self.dummy_cols = {'year': 'year',
+                           'month': 'month',
+                           'weekday': 'wday',
+                           'quarter': 'qrtr',
+                           'monthstart': 'm_start',
+                           'monthend': 'm_end',
+                           'season': 'season'}
 
 
 """
@@ -312,6 +327,14 @@ class predictionUtil:
 
         return masterPD
 
+    def createDummyEncoding(self, pdObject) -> pd:
+
+        ret = pdObject
+        for dummycols_key in self._constant.dummy_cols.keys():
+            ret = pd.get_dummies(ret, columns=[dummycols_key], drop_first=True,
+                                 prefix=self._constant.dummy_cols[dummycols_key])
+        return ret
+
 
 """
 Utility Class
@@ -451,6 +474,12 @@ class HassPredictSwitch(hass.Hass):
                                 pdHistoryDM = _predictionUtil.setSituations(
                                     pdHistoryDM, pdbasedonHistoryDM)
 
+                pdHistoryDM = _predictionUtil.createDummyEncoding(pdHistoryDM)
+
+                
+
+                # .get_dummies(pdHistoryDM, columns=['month'], drop_first=True, prefix='month').get_dummies(pdHistoryDM, columns=['weekday'], drop_first=True, prefix='wday').get_dummies(pdHistoryDM, columns=['quarter'], drop_first=True, prefix='qrtr')
+
                 # !! Debug !!
-                pdHistoryDM.to_csv(os.path.join(
-                    _constant.Currentfolder, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
+                # pdHistoryDM.to_csv(os.path.join(
+                #     _constant.Currentfolder, f"{predictEventKey}.csv"), sep='\t', encoding='utf-8')
