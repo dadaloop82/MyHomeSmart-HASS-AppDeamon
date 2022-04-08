@@ -34,3 +34,15 @@
   - [The potential problems](#ggg)
   - [An example](#fff)
 - [The Reasoning (_on Hass Forum_)](https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972)
+
+
+
+
+
+## .
+## .
+## .
+## .
+## .
+#
+##### ... Sorry, I haven't finished writing everything yet. Come back later :)
