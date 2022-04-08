@@ -16,13 +16,11 @@
         <img src="https://img.shields.io/github/issues/dadaloop82/MyHomeSmart-HASS-AppDeamon.svg" height="20px" />
     </a>
     <br>
-    <center>    
-    <h3> 
+    <center>        
       <a href="https://github.com/home-assistant/core" target="_blank" alt="Hass GitHub">Home assistant</a> 
       |
       <a href="https://github.com/AppDaemon/appdaemon" target="_blank" alt="AppDeamon GitHub">AppDeamon</a>
       |
-      <a href="https://github.com/scikit-learn/scikit-learn" target="_blank" alt="SciKit GitHub">Scikit-learn (tree)</a>
-   </h3>
+      <a href="https://github.com/scikit-learn/scikit-learn" target="_blank" alt="SciKit GitHub">Scikit-learn (tree)</a>   
    </center>    
 </p>
