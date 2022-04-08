@@ -22,3 +22,15 @@
       |
       <a href="https://github.com/scikit-learn/scikit-learn" target="_blank" alt="SciKit GitHub">Scikit-learn (tree)</a>      
 </p>
+
+##### Table of Contents  
+- [Prediction versus Logic](#aa)
+  - [What is prediction?](#aa)
+  - [What is meant by logic?](#aa)
+- [The decision tree](#ccc)  
+  - [Using the decision tree with logic](#ddd)
+- [How to apply a logical decision tree to Home Assistant ?](#eee)
+  - [The benefit](#fff)
+  - [The potential problems](#ggg)
+  - [An example](#fff)
+- [The Reasoning (_on Hass Forum_)](https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972)
