@@ -30,7 +30,6 @@
 - [Why with Home Assistant?](#why-with-home-assistant)
 - [Prediction versus Logic](#prediction-versus-logic)
 - [The decision tree](#the-decision-tree)
-  - [Using the decision tree with logic](#using-the-decision-tree-with-logic)
 - [How to apply a logical decision tree to Home Assistant ?](#how-to-apply-a-logical-decision-tree-to-home-assistant-)
   - [Example](#example)
   - [The benefit](#the-benefit)
@@ -38,6 +37,7 @@
 - [What is appDeamon?](#what-is-appdeamon)
 - [How to install the script?](#how-to-install-the-script)
 - ["The Reasoning" _on Hass Forum_](#the-reasoning-on-hass-forum)
+- [I want to help you](#i-want-to-help-you)
 
 #
 # What does mean "Give intelligence to Home automation"?
@@ -79,13 +79,19 @@ The system would not consider these factors and would simply turn on the heating
 Applying *Logic and Reasoning* to the actions to be taken means giving Home Assistant a learning system of all the possible situations that can generate (or have generated) a certain result and decide for themselves which action is the most logical to do.
 Surely it will need a lot of initial learning, but when it knows, for example, that the open window lowers the temperature, it will avoid turning on the heating because it would not obtain the desired result.
 
-
-
 # The decision tree
 
-## Using the decision tree with logic
+I'm not sure how to achieve this yet ( see [i want to help you](#i-want-to-help-you) ) but I think that to do this I will need one or more decision trees.
+The [scikit-learn library Descision Trees](https://scikit-learn.org/stable/modules/tree.html) for Python might be useful to me for this purpose, applying the concept of Machine Learning on raw non-force numeric entities such as the states of Home Assistant entities.
+
+The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-home-assistant-), but it could change thanks to your helping ( see [i want to help you](#i-want-to-help-you) )
+
 
 # How to apply a logical decision tree to Home Assistant ?
+
+This is only a general concept of my idea
+
+[image]
 
 ## Example
 
@@ -99,3 +105,5 @@ Surely it will need a lot of initial learning, but when it knows, for example, t
 
 # "The Reasoning" _on Hass Forum_
 https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972
+
+#  I want to help you
