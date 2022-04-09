@@ -31,6 +31,8 @@
 - [Prediction versus Logic](#prediction-versus-logic)
 - [The decision tree](#the-decision-tree)
 - [How to apply a logical decision tree to Home Assistant ?](#how-to-apply-a-logical-decision-tree-to-home-assistant-)
+  - [Learning Block](#learning-block)
+  - [Decision tree Block](#decision-tree-block)
   - [Example](#example)
   - [The benefit](#the-benefit)
   - [The potential problems](#the-potential-problems)
@@ -89,9 +91,13 @@ The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-
 
 # How to apply a logical decision tree to Home Assistant ?
 
-This is only a general concept of my idea
+## Learning Block
+This is only a general graph concept of my idea
 
-[image]
+![Learning Block](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept.drawio.learningblock.png)
+
+## Decision tree Block
+This is only a general graph concept of my idea
 
 ## Example
 
