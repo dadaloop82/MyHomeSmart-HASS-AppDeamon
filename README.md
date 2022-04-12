@@ -30,9 +30,9 @@
 - [3. Why with Home Assistant?](#3-why-with-home-assistant)
 - [4. Prediction versus Logic](#4-prediction-versus-logic)
 - [5. The decision tree](#5-the-decision-tree)
-- [6. How to apply a logical decision tree to Home Assistant ?](#6-how-to-apply-a-logical-decision-tree-to-home-assistant-)
+- [6. How to apply this to Home Assistant ?](#6-how-to-apply-this-to-home-assistant-)
   - [6.1. Hypothetical operation diagram](#61-hypothetical-operation-diagram)
-  - [6.3. The benefit](#63-the-benefit)
+  - [6.3. Can you give a simpler explanation?](#63-can-you-give-a-simpler-explanation)
   - [6.4. The potential problems](#64-the-potential-problems)
 - [7. What is appDeamon?](#7-what-is-appdeamon)
 - [8. How to install the script?](#8-how-to-install-the-script)
@@ -87,14 +87,47 @@ The [scikit-learn library Descision Trees](https://scikit-learn.org/stable/modul
 The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-home-assistant-), but it could change thanks to your helping ( see [i want to help you](#i-want-to-help-you) )
 
 
-# 6. How to apply a logical decision tree to Home Assistant ?
+# 6. How to apply this to Home Assistant ?
 
 ## 6.1. Hypothetical operation diagram
 This is only a general graph concept of my idea: if you have a better or another idea please see [i want to help you](#i-want-to-help-you) sections
 
 ![Hypothetical operation diagram](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock.drawio.png)
 
-## 6.3. The benefit
+## 6.3. Can you give a simpler explanation?
+
+A home automation system designed in this way would have the advantage of being able to autonomously perform actions for a given purpose, whether it is usually achieved by the user or the consequence of other factors.
+
+*Current Situation:*
+
+    - There are 22°C in the house
+    - The heating is off
+    - The window is closed
+    - The optimal temperature is 20°C
+    - It's cooking at home
+
+*Learning Model:*
+    
+    - When the heaters are off, the temperature in the house rises
+    - When the windows are closed, the house temperature rises
+    - When cooking at home temperature rises
+
+*Decision tree:*
+
+    - Can the radiators be turned on? [ YES ]
+    - Can windows be opened? [ YES - someone is in the house to do it ]
+    - Can you stop cooking ? [ NO ]
+
+*Reasoning:*
+
+    - Are the radiators on at this time ? [ NO ]
+    - Have the radiators ever been turned on with the window open [ NO ]
+    = Turn on radiators is to be discarded
+
+*Final Solution* 
+
+    - Open the home window or ask the user to do so.
+
 
 ## 6.4. The potential problems
 
