@@ -25,22 +25,36 @@
 
 [ Table of Content ]
 
-- [1. What does mean "Give intelligence to Home automation"?](#1-what-does-mean-give-intelligence-to-home-automation)
-- [2. What is the goal of this project?](#2-what-is-the-goal-of-this-project)
-- [3. Why with Home Assistant?](#3-why-with-home-assistant)
-- [4. Prediction versus Logic](#4-prediction-versus-logic)
-- [5. The decision tree](#5-the-decision-tree)
-- [6. How to apply this to Home Assistant ?](#6-how-to-apply-this-to-home-assistant-)
-  - [6.1. Hypothetical operation diagram](#61-hypothetical-operation-diagram)
-  - [6.3. Can you give a simpler explanation?](#63-can-you-give-a-simpler-explanation)
-  - [6.4. The potential problems](#64-the-potential-problems)
-- [7. What is appDeamon?](#7-what-is-appdeamon)
-- [8. How to install the script?](#8-how-to-install-the-script)
-- [9. "The Reasoning" _on Hass Forum_](#9-the-reasoning-on-hass-forum)
-- [10. I want to help you](#10-i-want-to-help-you)
-
+- [1. Project Progress](#1-project-progress)
+- [2. What does mean "Give intelligence to Home automation"?](#2-what-does-mean-give-intelligence-to-home-automation)
+- [3. What is the goal of this project?](#3-what-is-the-goal-of-this-project)
+- [4. Why with Home Assistant?](#4-why-with-home-assistant)
+- [5. Prediction versus Logic](#5-prediction-versus-logic)
+- [6. The decision tree](#6-the-decision-tree)
+- [7. How to apply this to Home Assistant ?](#7-how-to-apply-this-to-home-assistant-)
+  - [7.1. Hypothetical operation diagram](#71-hypothetical-operation-diagram)
+  - [7.2. Can you give a simpler explanation?](#72-can-you-give-a-simpler-explanation)
+  - [7.3. Cool! But what are the difficulties?](#73-cool-but-what-are-the-difficulties)
+- [8. What is appDeamon?](#8-what-is-appdeamon)
+- [9. How to install the script?](#9-how-to-install-the-script)
+- [10. "The Reasoning" _on Hass Forum_](#10-the-reasoning-on-hass-forum)
+- [11. I want to help you](#11-i-want-to-help-you)
 #
-# 1. What does mean "Give intelligence to Home automation"?
+
+# 1. Project Progress
+
+![Overall](https://progress-bar.dev/30/?scale=100&title=Overall&width=300&suffix=%)
+
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=150)
+
+# 2. What does mean "Give intelligence to Home automation"?
 
 Today we can enjoy several devices called "smart"; devices that seem to possess reasoning, logic and deduction skills in performing seemingly spontaneous actions.
 In reality, this is not the case at all, each device is programmed to do actions under certain conditions, without any understanding of what it is doing and the possible consequence that such actions can do.
@@ -50,17 +64,17 @@ And so on.
 
 __Giving intelligence to home automation means giving a logical and comprehensive reasoning to the action that the home automation system should do to reach a certain objective.__
 
-# 2. What is the goal of this project?
+# 3. What is the goal of this project?
 
 The goal of this project is to apply to [Home Assistant (HASS)](https://github.com/home-assistant) a system of automatic creation of dynamic automations able to activate or deactivate autonomously entities to achieve the prefixed purpose, whether it is dictated by the habits of the user or it is the right thing to do to achieve a certain purpose.
 Home assistant already has the ability to manually create automations based on various conditions and it is also capable of predicting possible situations ([Bayesian Sensor)](https://www.home-assistant.io/integrations/bayesian/) but it has not been conceived to autonomously implement actions without the user having programmed them in advance.
 
-# 3. Why with Home Assistant?
+# 4. Why with Home Assistant?
 
 I choose  HomeAssistant over OpenHab, Domoticz or many others simply because for me it's the platform i personally prefer and in my opinion is the simplest and most comprehensive.
 That's all :)
 
-# 4. Prediction versus Logic
+# 5. Prediction versus Logic
 
 In the world of Home Assistant, prediction is understood as the triggering of a certain event based on the possibilities that this event has already occurred in the same situation.
 
@@ -79,7 +93,7 @@ The system would not consider these factors and would simply turn on the heating
 Applying *Logic and Reasoning* to the actions to be taken means giving Home Assistant a learning system of all the possible situations that can generate (or have generated) a certain result and decide for themselves which action is the most logical to do.
 Surely it will need a lot of initial learning, but when it knows, for example, that the open window lowers the temperature, it will avoid turning on the heating because it would not obtain the desired result.
 
-# 5. The decision tree
+# 6. The decision tree
 
 I'm not sure how to achieve this yet ( see [i want to help you](#i-want-to-help-you) ) but I think that to do this I will need one or more decision trees.
 The [scikit-learn library Descision Trees](https://scikit-learn.org/stable/modules/tree.html) for Python might be useful to me for this purpose, applying the concept of Machine Learning on raw non-force numeric entities such as the states of Home Assistant entities.
@@ -87,14 +101,14 @@ The [scikit-learn library Descision Trees](https://scikit-learn.org/stable/modul
 The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-home-assistant-), but it could change thanks to your helping ( see [i want to help you](#i-want-to-help-you) )
 
 
-# 6. How to apply this to Home Assistant ?
+# 7. How to apply this to Home Assistant ?
 
-## 6.1. Hypothetical operation diagram
+## 7.1. Hypothetical operation diagram
 This is only a general graph concept of my idea: if you have a better or another idea please see [i want to help you](#i-want-to-help-you) sections
 
 ![Hypothetical operation diagram](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock.drawio.png)
 
-## 6.3. Can you give a simpler explanation?
+## 7.2. Can you give a simpler explanation?
 
 A home automation system designed in this way would have the advantage of being able to autonomously perform actions for a given purpose, whether it is usually achieved by the user or the consequence of other factors.
 
@@ -129,13 +143,17 @@ A home automation system designed in this way would have the advantage of being 
     - Open the home window or ask the user to do so.
 
 
-## 6.4. The potential problems
+## 7.3. Cool! But what are the difficulties?
 
-# 7. What is appDeamon?
+The main difficulty is to transform an idea into a programmable solution: I've already tried many times to do something like this, but I've always had to stop in front of technical and/or implementation limits that are difficult or impossible to overcome.
+Since I have (or we have, thanks to you!) clear ideas we can certainly proceed with more confidence even having to change the initial idea, if necessary.
 
-# 8. How to install the script?
 
-# 9. "The Reasoning" _on Hass Forum_
+# 8. What is appDeamon?
+
+# 9. How to install the script?
+
+# 10. "The Reasoning" _on Hass Forum_
 https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972
 
-#  10. I want to help you
+#  11. I want to help you
