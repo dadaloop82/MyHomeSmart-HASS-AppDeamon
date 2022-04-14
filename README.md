@@ -45,9 +45,9 @@
 
 ![Overall](https://progress-bar.dev/30/?scale=100&title=Overall&width=300&suffix=%)
 
-![xx](https://progress-bar.dev/10/?title=progress&width=150)
-![xx](https://progress-bar.dev/10/?title=progress&width=150)
-![xx](https://progress-bar.dev/10/?title=progress&width=150)
+![xx](https://progress-bar.dev/10/?title=progress&width=100)
+![xx](https://progress-bar.dev/10/?title=progress&width=100)
+![xx](https://progress-bar.dev/10/?title=progress&width=100)
 ![xx](https://progress-bar.dev/10/?title=progress&width=150)
 ![xx](https://progress-bar.dev/10/?title=progress&width=150)
 ![xx](https://progress-bar.dev/10/?title=progress&width=150)
