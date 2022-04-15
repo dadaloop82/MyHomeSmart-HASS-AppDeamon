@@ -23,6 +23,8 @@
       <a href="https://github.com/scikit-learn/scikit-learn" target="_blank" alt="SciKit GitHub">Scikit-learn (tree)</a>      
 </p>
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
+
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
@@ -46,7 +48,7 @@
 | ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=420&suffix=%) |
 | :--------------------------------------------------------------------------------- |
 
-| ![Idea description](https://progress-bar.dev/70/?title=idea%20description&width=140) | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
+| ![Base](https://progress-bar.dev/0/?title=idea%20description&width=140) | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
 | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
 | ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=150)      | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=140) |
 | ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140)  | ![Testing](https://progress-bar.dev/0/?title=testing&width=190)                   |              |
