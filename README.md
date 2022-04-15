@@ -25,6 +25,7 @@
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
+
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
