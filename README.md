@@ -43,22 +43,13 @@
 
 # 1. Project Progress
 
-![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=300&suffix=%)
+| ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=420&suffix=%) |
+| :--------------------------------------------------------------------------------- |
 
-|![Idea description](https://progress-bar.dev/70/?title=idea%20description&width=120)|![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=120)|
-
-|![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=120)|![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=120)|
-
-![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=120)|![Testing](https://progress-bar.dev/0/?title=testing&width=120)|
-
-
-
-
-
-
-
-
-
+| ![Idea description](https://progress-bar.dev/70/?title=idea%20description&width=140) | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
+| :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=140)      | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=120) |
+| ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=1420)  | ![Testing](https://progress-bar.dev/0/?title=testing&width=140)                   |
 
 # 2. What does mean "Give intelligence to Home automation"?
 
