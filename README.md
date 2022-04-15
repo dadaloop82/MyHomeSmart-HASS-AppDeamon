@@ -25,6 +25,8 @@
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
+[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3DHASS_AppDeamon_SwitchPredictor%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/HASS_AppDeamon_SwitchPredictor)
+
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
