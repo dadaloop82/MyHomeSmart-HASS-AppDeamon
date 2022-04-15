@@ -47,10 +47,8 @@
 
 ![Idea description](https://progress-bar.dev/70/?title=idea%20description&width=120)
 ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=120)
-
 ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=120)
 ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=120)
-
 ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=120)
 ![Testing](https://progress-bar.dev/0/?title=testing&width=120)
 
