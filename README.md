@@ -49,7 +49,7 @@
 | ![Idea description](https://progress-bar.dev/70/?title=idea%20description&width=140) | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
 | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
 | ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=140)      | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=120) |
-| ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=1420)  | ![Testing](https://progress-bar.dev/0/?title=testing&width=140)                   |
+| ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140)  | ![Testing](https://progress-bar.dev/0/?title=testing&width=140)                   |
 
 # 2. What does mean "Give intelligence to Home automation"?
 
