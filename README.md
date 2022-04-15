@@ -186,3 +186,47 @@ AppDaemon is a subsystem to complement Home Assistant’s Automation and Scripti
   >  https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972
 
 #  11. Cool! How can I help you?
+
+This is a free, open project and has no commercial purpose and never will.
+It is distributed under the GPLv3 license, that is
+- you have the freedom to use the software for any purpose,
+- you have the freedom to modify the software to suit your needs,
+- you have the freedom to share the software with your friends and neighbors, and
+- you have the freedom to share the changes you make.
+
+So any help given here for this project is absolutely free and will be taken into high consideration.
+
+If you want to give me a suggestion, propose your idea, offer yourself as a programmer or whatever you can write here
+
+> [Discussions](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/discussions)
+
+> [Issues](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/issues)
+
+Instead, for those who are familiar with programming can easily make the **CLONE** of the project and send their **PUSH** that will be evaluated and eventually approved.
+
+The people who **IS HELPFUL** are:
+
+- People who share my basic idea and appreciate the project
+- People who understand the project and want to be part of it
+- People who help me bring clarity to my crazy idea
+- People who give me suggestions on how to improve it
+- People who want to argue with interest and understanding
+- People who have the ability to program in Python
+- People who use HomeAssistant
+- People who know the GPLv3 license
+- People who know how to use GitHub
+
+The people who **DON'T HELP** are:
+
+- Everyone who doesn't share my idea and doesn't like the project
+- All the people who don't understand the usefulness of the project
+- All those who don't have ideas to improve it
+- All those who argue with subjects not related to the project
+- All those who do not know GPLv3 or do not have a basic knowledge of Github
+- All those who don't care about this idea or this project
+- **All those who want to make this idea their own**.
+
+
+
+
+
