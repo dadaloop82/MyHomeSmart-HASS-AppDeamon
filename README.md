@@ -38,7 +38,7 @@
 - [8. What is appDeamon?](#8-what-is-appdeamon)
 - [9. How to install the script?](#9-how-to-install-the-script)
 - [10. "The Reasoning" _on Hass Forum_](#10-the-reasoning-on-hass-forum)
-- [11. I want to help you](#11-i-want-to-help-you)
+- [11. Cool! How can I help you?](#11-cool-how-can-i-help-you)
 #
 
 # 1. Project Progress
@@ -48,8 +48,8 @@
 
 | ![Idea description](https://progress-bar.dev/70/?title=idea%20description&width=140) | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
 | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
-| ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=140)      | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=120) |
-| ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140)  | ![Testing](https://progress-bar.dev/0/?title=testing&width=140)                   |
+| ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=150)      | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=140) |
+| ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140)  | ![Testing](https://progress-bar.dev/0/?title=testing&width=190)                   |              |
 
 # 2. What does mean "Give intelligence to Home automation"?
 
@@ -92,16 +92,16 @@ Surely it will need a lot of initial learning, but when it knows, for example, t
 
 # 6. The decision tree
 
-I'm not sure how to achieve this yet ( see [i want to help you](#i-want-to-help-you) ) but I think that to do this I will need one or more decision trees.
+I'm not sure how to achieve this yet ( [maybe you can help me?](#11-cool-how-can-i-help-you) ) but I think that to do this I will need one or more decision trees.
 The [scikit-learn library Descision Trees](https://scikit-learn.org/stable/modules/tree.html) for Python might be useful to me for this purpose, applying the concept of Machine Learning on raw non-force numeric entities such as the states of Home Assistant entities.
 
-The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-home-assistant-), but it could change thanks to your helping ( see [i want to help you](#i-want-to-help-you) )
+The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-home-assistant-), but it could change thanks to your helping.
 
 
 # 7. How to apply this to Home Assistant ?
 
 ## 7.1. Hypothetical operation diagram
-This is only a general graph concept of my idea: if you have a better or another idea please see [i want to help you](#i-want-to-help-you) sections
+This is only a general graph concept of my idea: if you have a better or another idea please see ( [maybe you can help me?](#11-cool-how-can-i-help-you) ) sections
 
 ![Hypothetical operation diagram](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock.drawio.png)
 
@@ -144,13 +144,45 @@ A home automation system designed in this way would have the advantage of being 
 
 The main difficulty is to transform an idea into a programmable solution: I've already tried many times to do something like this, but I've always had to stop in front of technical and/or implementation limits that are difficult or impossible to overcome.
 Since I have (or we have, thanks to you!) clear ideas we can certainly proceed with more confidence even having to change the initial idea, if necessary.
+( [maybe you can help me?](#11-cool-how-can-i-help-you) )
 
 
 # 8. What is appDeamon?
 
+(from https://appdaemon.readthedocs.io/en/latest/HASS_TUTORIAL.html)
+
+AppDaemon is a subsystem to complement Home Assistant’s Automation and Scripting components. AppDaemon, is a Python daemon that consumes events from Home Assistant and feeds them to snippets of Python code called Apps. An App is a Python class that is instantiated possibly multiple times from AppDaemon and registers callbacks for various system events. It is also able to inspect and set state and call services. The API provides a rich environment suited to home automation tasks that can also leverage all the power of Python.
+
 # 9. How to install the script?
 
-# 10. "The Reasoning" _on Hass Forum_
-https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972
+- Install AppDeamon -> [follow here](https://appdaemon.readthedocs.io/en/latest/INSTALL.html)
+  
+- Open a file manager and go to folder 
+  > [appDeamonFolder]/apps
 
-#  11. I want to help you
+- Do a gitClone of this repository:
+  > git clone git@github.com:dadaloop82/MyHomeSmart-HASS-AppDeamon.git
+  
+  or
+  
+  > git clone https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon.git
+
+- Now you have the folder 
+
+  > [appDeamonFolder]/apps/MyHomeSmart-HASS-AppDeamon
+
+- Open this configuration file and modify it according to the instructions in the file
+
+  > [appDeamonFolder]/apps/MyHomeSmart-HASS-AppDeamon/apps.yaml
+
+- Restart AppDeamon
+
+- Restart Home Assistant istance
+
+- Enjoy :)
+  
+
+# 10. "The Reasoning" _on Hass Forum_
+  >  https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972
+
+#  11. Cool! How can I help you?
