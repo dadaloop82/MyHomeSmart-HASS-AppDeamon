@@ -29,7 +29,7 @@
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
-    - [Project Status: **Not yet started**](#project-status-not-yet-started)
+    - [Project Status: **Base in programming (not ready yet!)**](#project-status-base-in-programming-not-ready-yet)
 - [2. What does mean "Give intelligence to Home automation"?](#2-what-does-mean-give-intelligence-to-home-automation)
 - [3. What is the goal of this project?](#3-what-is-the-goal-of-this-project)
 - [4. Why with Home Assistant?](#4-why-with-home-assistant)
@@ -47,13 +47,13 @@
 
 # 1. Project Progress
 
-### Project Status: **Not yet started**
+### Project Status: **Base in programming (not ready yet!)**
 
 
 | ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=470&suffix=%) |
 | :--------------------------------------------------------------------------------- |
 
-| ![Base](https://progress-bar.dev/0/?title=base&width=220)                           | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
+| ![Base](https://progress-bar.dev/10/?title=base&width=220)                           | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
 | :---------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
 | ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=150)     | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=140) |
 | ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140) | ![Testing](https://progress-bar.dev/0/?title=testing&width=190)                   |  |
