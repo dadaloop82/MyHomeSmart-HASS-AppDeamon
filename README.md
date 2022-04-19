@@ -53,10 +53,10 @@
 ### Project Status: **Base in programming (not ready yet!)**
 
 
-| ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=460&suffix=%) |
+| ![Overall](https://progress-bar.dev/16/?scale=100&title=Overall&width=460&suffix=%) |
 | :--------------------------------------------------------------------------------- |
 
-| ![Documentation](https://progress-bar.dev/15/?title=Documentation&width=180)        | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
+| ![Documentation](https://progress-bar.dev/100/?title=Documentation&width=160)       | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
 | :---------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
 | ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=150)     | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=140) |
 | ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140) | ![Testing](https://progress-bar.dev/0/?title=testing&width=190)                   |  |
