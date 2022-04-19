@@ -11,3 +11,11 @@ def get_HASSEntities(_self, includeEntities, excludeEntities):
         if _entity in _tmpEntities:
             _tmpEntities.pop(_entity)
     return _tmpEntities
+
+
+def update_EditableEntity(_self, entityName, newState, oldState, kwargs):
+    _self.log("EditableEntity: %s -> %s" % (entityName, newState))
+
+
+def update_ReadOnlyEntity(_self, entityName, newState, oldState, kwargs):
+    _self.log("ReadOnlyEntity: %s -> %s" % (entityName, newState))

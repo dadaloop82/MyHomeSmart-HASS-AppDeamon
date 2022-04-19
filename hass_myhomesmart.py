@@ -34,15 +34,51 @@ import module.variables as VARIABLES
 import module.utility as UTILITY
 # Home Assistant functions
 import module.hass as HASS
+# Logging functions
+import module.log as LOG
 
 
 class main(hass.Hass):
 
+    def entityStateChanged(self, entityName, attribute, old, new, kwargs):
+        try:
+
+            # Switch between Editable or ReadOnly entity
+            _editable = False
+            if "editable" in kwargs['attrs']:
+                _editable = kwargs['attrs']['editable']
+            if _editable:
+                HASS.update_EditableEntity(self, entityName, new, old, kwargs)
+            else:
+                HASS.update_ReadOnlyEntity(self, entityName, new, old, kwargs)
+
+        except Exception as e:
+            LOG.LogError(self, e, True)
+
     def initialize(self):
 
-        _entities = HASS.get_HASSEntities(
-            self,
-            UTILITY.getConfigValue(self, "include_entities"),
-            UTILITY.getConfigValue(self, "exclude_entities")
-        )
-        self.log(_entities)
+        try:
+
+            # Get usable entities
+            _entities = HASS.get_HASSEntities(
+                self,
+                UTILITY.getConfigValue(self, "include_entities"),
+                UTILITY.getConfigValue(self, "exclude_entities")
+            )
+            # Check if are any usable entities
+            if not _entities:
+                LOG.LogError(
+                    "There are no entities to control or monitor", True)
+            LOG.LogInfo(self, ("[ %s ] entities were found to be usable" %
+                        len(_entities)))
+
+            # Subscribe on all entities
+            for _entityData in _entities.items():
+                _entityName = _entityData[0]
+                _entityAttrs = _entityData[1]
+                _entityObj = self.get_entity(_entityName)
+                _entityObj.listen_state(
+                    self.entityStateChanged, attrs=_entityAttrs['attributes'])
+
+        except Exception as e:
+            LOG.LogError(self, e, True)

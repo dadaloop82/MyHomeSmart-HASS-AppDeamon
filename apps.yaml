@@ -22,6 +22,8 @@ hass_myhomesmart:
       include_entities:                
         - sensor.*
         - switch.*
+        - input_boolean.*
+        - input_number.*
       # [[ Entities to exclude ]]
       # Entities that you want to exclude from those included in the "include_entities" section 
       # 
