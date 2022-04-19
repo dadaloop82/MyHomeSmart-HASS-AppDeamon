@@ -233,11 +233,12 @@ So any help given here for this project is absolutely free and will be taken int
 Or you can support me with any donation:
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
-<form action="https://www.paypal.com/donate" method="post" target="_top">
-<input type="hidden" name="hosted_button_id" value="UDVQ9WFELQQTJ" />
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_IT/i/scr/pixel.gif" width="1" height="1" />
-</form>
+
+[
+  ![Donate with PayPal]
+  (https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png)
+]
+(https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UDVQ9WFELQQTJ)
 
 
 Instead, for those who are familiar with programming can easily make the **CLONE** of the project and send their **PUSH** that will be evaluated and eventually approved.
