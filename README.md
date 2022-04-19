@@ -23,11 +23,9 @@
       <a href="https://github.com/scikit-learn/scikit-learn" target="_blank" alt="SciKit GitHub">Scikit-learn (tree)</a>      
 </p>
 
-<center>
-<hr>
+
 <h2><b>I need your help!</b></h2>
-<p>"None of us are as smart as all of us combined."</br>
-<i>Ken Blanchard</i>
+<p>"None of us are as smart as all of us combined." - <i>Ken Blanchard</i>
 </br>
 <a href = "#11-cool-how-can-i-help-you">How can I help you?</a>
 </p>
