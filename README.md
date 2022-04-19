@@ -35,7 +35,6 @@
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
-
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
@@ -234,12 +233,9 @@ Or you can support me with any donation:
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
-[
-  ![Donate with PayPal]
-  (https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png)
-]
-(https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UDVQ9WFELQQTJ)
-
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UDVQ9WFELQQTJ">
+  <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" width="180px" alt="Donate with PayPal" />
+</a>
 
 Instead, for those who are familiar with programming can easily make the **CLONE** of the project and send their **PUSH** that will be evaluated and eventually approved.
 
