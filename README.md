@@ -29,6 +29,8 @@
 </br>
 <a href = "#11-cool-how-can-i-help-you">How can I help you?</a>
 </p>
+<hr>
+
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
