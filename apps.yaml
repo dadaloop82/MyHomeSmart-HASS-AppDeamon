@@ -8,5 +8,28 @@ hass_myhomesmart:
   #################################################################
   # MyHomeSmart Configuration
   #################################################################
-  config:    
-    
+  config:
+      # [[ Entities to include ]]
+      # Entities that you want to include in the MyHomeSmart system
+      #
+      # -   Can enter the name of the entity as provided by HomeAssistant
+      #     example: sensor.room_temperature
+      #
+      # -   Can insert the entity class to include all entities of the same class
+      #     example: sensor.*
+      #
+      # The system will automatically recognize read-only entities from editable ones      
+      include_entities:                
+        - sensor.*
+        - switch.*
+      # [[ Entities to exclude ]]
+      # Entities that you want to exclude from those included in the "include_entities" section 
+      # 
+      # Specify the exact name as provided by HomAsistant
+      #     example: sensor.room_temperature
+      #
+      # No value indicates that no entity, included in the section "include_entities" is excluded
+      exclude_entities:
+        - sensor.soggiorno_object_detector_fps
+        - sensor.soggiorno_operation_state
+        - switch.soggiorno_connection

@@ -26,10 +26,23 @@
 
 # Essential library for communicating with HASS
 import hassapi as hass
+# Constants
+import module.constant as CONSTANT
+# Variables
+import module.variables as VARIABLES
+# Utility
+import module.utility as UTILITY
+# Home Assistant functions
+import module.hass as HASS
 
 
 class main(hass.Hass):
 
     def initialize(self):
 
-        self.log("Hello from MyHomeSmart")
+        _entities = HASS.get_HASSEntities(
+            self,
+            UTILITY.getConfigValue(self, "include_entities"),
+            UTILITY.getConfigValue(self, "exclude_entities")
+        )
+        self.log(_entities)
