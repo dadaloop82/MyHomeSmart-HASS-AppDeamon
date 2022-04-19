@@ -41,6 +41,9 @@
   - [7.3. Cool! But what are the difficulties?](#73-cool-but-what-are-the-difficulties)
 - [8. What is appDeamon?](#8-what-is-appdeamon)
 - [9. How to install the script?](#9-how-to-install-the-script)
+    - [**Follow these instructions ONLY if a stable, finished version has been released!**](#follow-these-instructions-only-if-a-stable-finished-version-has-been-released)
+    - [*Look at the top of this readme !*](#look-at-the-top-of-this-readme-)
+- [](#)
 - [10. "The Reasoning" _on Hass Forum_](#10-the-reasoning-on-hass-forum)
 - [11. Cool! How can I help you?](#11-cool-how-can-i-help-you)
 #
@@ -50,10 +53,10 @@
 ### Project Status: **Base in programming (not ready yet!)**
 
 
-| ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=470&suffix=%) |
+| ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=460&suffix=%) |
 | :--------------------------------------------------------------------------------- |
 
-| ![Base](https://progress-bar.dev/10/?title=base&width=220)                           | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
+| ![Base](https://progress-bar.dev/10/?title=base&width=220)                          | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
 | :---------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
 | ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=150)     | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=140) |
 | ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140) | ![Testing](https://progress-bar.dev/0/?title=testing&width=190)                   |  |
@@ -161,6 +164,11 @@ Since I have (or we have, thanks to you!) clear ideas we can certainly proceed w
 AppDaemon is a subsystem to complement Home Assistant’s Automation and Scripting components. AppDaemon, is a Python daemon that consumes events from Home Assistant and feeds them to snippets of Python code called Apps. An App is a Python class that is instantiated possibly multiple times from AppDaemon and registers callbacks for various system events. It is also able to inspect and set state and call services. The API provides a rich environment suited to home automation tasks that can also leverage all the power of Python.
 
 # 9. How to install the script?
+
+### **Follow these instructions ONLY if a stable, finished version has been released!**
+### *Look at the top of this readme !*
+
+# 
 
 - Install AppDeamon -> [follow here](https://appdaemon.readthedocs.io/en/latest/INSTALL.html)
   
