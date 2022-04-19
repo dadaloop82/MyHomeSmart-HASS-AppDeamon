@@ -23,6 +23,18 @@
       <a href="https://github.com/scikit-learn/scikit-learn" target="_blank" alt="SciKit GitHub">Scikit-learn (tree)</a>      
 </p>
 
+<center>
+<hr>
+<h2><b>I need your help!</b></h2>
+<p>"None of us are as smart as all of us combined."</br>
+<i>Ken Blanchard</i>
+</br>
+<a href = "#11-cool-how-can-i-help-you">How can I help you?</a>
+</p>
+<hr>
+</center>
+
+
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
 
 
@@ -214,11 +226,21 @@ It is distributed under the GPLv3 license, that is
 
 So any help given here for this project is absolutely free and will be taken into high consideration.
 
-If you want to give me a suggestion, propose your idea, offer yourself as a programmer or whatever you can write here
+**If you want to give me a suggestion, propose your idea, offer yourself as a programmer or whatever you can write here**
 
 > [Discussions](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/discussions)
 
 > [Issues](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/issues)
+
+Or you can support me with any donation:
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dadaloop82)
+<form action="https://www.paypal.com/donate" method="post" target="_top">
+<input type="hidden" name="hosted_button_id" value="UDVQ9WFELQQTJ" />
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+<img alt="" border="0" src="https://www.paypal.com/en_IT/i/scr/pixel.gif" width="1" height="1" />
+</form>
+
 
 Instead, for those who are familiar with programming can easily make the **CLONE** of the project and send their **PUSH** that will be evaluated and eventually approved.
 
