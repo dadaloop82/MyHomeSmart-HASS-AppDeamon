@@ -29,6 +29,7 @@
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
+  - [Project Status: **Not yet started**](#project-status-not-yet-started)
 - [2. What does mean "Give intelligence to Home automation"?](#2-what-does-mean-give-intelligence-to-home-automation)
 - [3. What is the goal of this project?](#3-what-is-the-goal-of-this-project)
 - [4. Why with Home Assistant?](#4-why-with-home-assistant)
@@ -46,10 +47,13 @@
 
 # 1. Project Progress
 
+## Project Status: **Not yet started**
+
+
 | ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=420&suffix=%) |
 | :--------------------------------------------------------------------------------- |
 
-| ![Base](https://progress-bar.dev/0/?title=idea%20description&width=140) | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
+| ![Base](https://progress-bar.dev/0/?title=base&width=210) | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
 | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
 | ![Learning stage](https://progress-bar.dev/0/?title=learning%20stage&width=150)      | ![Reasoning stage](https://progress-bar.dev/0/?title=reasoning%20stage&width=140) |
 | ![Solution provide](https://progress-bar.dev/0/?title=solution%20provide&width=140)  | ![Testing](https://progress-bar.dev/0/?title=testing&width=190)                   |              |
@@ -218,16 +222,6 @@ The people who **IS HELPFUL** are:
 - People who use HomeAssistant
 - People who know the GPLv3 license
 - People who know how to use GitHub
-
-The people who **DON'T HELP** are:
-
-- Everyone who doesn't share my idea and doesn't like the project
-- All the people who don't understand the usefulness of the project
-- All those who don't have ideas to improve it
-- All those who argue with subjects not related to the project
-- All those who do not know GPLv3 or do not have a basic knowledge of Github
-- All those who don't care about this idea or this project
-- **All those who want to make this idea their own**.
 
 
 
