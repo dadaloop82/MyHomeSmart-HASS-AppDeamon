@@ -50,7 +50,7 @@
 ### Project Status: **Not yet started**
 
 
-| ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=480&suffix=%) |
+| ![Overall](https://progress-bar.dev/0/?scale=100&title=Overall&width=470&suffix=%) |
 | :--------------------------------------------------------------------------------- |
 
 | ![Base](https://progress-bar.dev/0/?title=base&width=220)                           | ![Data collection](https://progress-bar.dev/0/?title=data%20collection&width=140) |
