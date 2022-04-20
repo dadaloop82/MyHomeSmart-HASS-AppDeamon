@@ -7,8 +7,19 @@ import module.constant as CONSTANT
 # Logging functions
 import module.log as LOG
 
+DBConn = {}
 
-def createDB(self: any, dbName: str):
+
+def create(self: any, dbName: str) -> bool:
+    """create Sqlite3 db from sql queries
+
+    Args:
+        self (any):         The appDeamon HASS Api
+        dbName (str):       database Name
+
+    Returns:
+        bool:               True/False (False means errors)
+    """
     try:
         _dbConn = sqlite3.connect(
             dbName, check_same_thread=False)
@@ -18,8 +29,33 @@ def createDB(self: any, dbName: str):
         _cur = _dbConn.cursor()
         _cur.executescript(sql_as_string)
         self.log("DB created: %s" % (dbName))
+        _dbConn.close()
         return True
     except Exception as e:
         """ There has been an error """
         LOG.LogError(self, e, True)
         return False
+
+
+def connect(self: any, dbPath: str, dbName: str) -> bool:
+    """connect to Sqlite3 db and store the connection object in global variable
+
+    Args:
+        self (any):         The appDeamon HASS Api
+        dbPath (str):       database Path
+        dbName (str):       database Name
+
+    Returns:
+        bool: _description_
+    """
+    if not dbName in DBConn:
+        try:
+            DBConn[dbName] = sqlite3.connect(
+                dbPath, check_same_thread=False)
+            self.log("DB ready: %s" % (dbName))
+            return True
+        except Exception as e:
+            """ There has been an error """
+            LOG.LogError(self, e, True)
+            return False
+    return True

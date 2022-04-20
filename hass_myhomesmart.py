@@ -64,11 +64,15 @@ class main(hass.Hass):
         """Default entrypoint for appDeamon           
         """
         try:
-            """ Check DB existence """
+            """ Check DB existence and connect them """
             if not exists(CONSTANT.DBPath_History):
-                DB.createDB(self, CONSTANT.DBPath_History)
-            if not exists(CONSTANT.DBPath_CauseEffectDB):
-                DB.createDB(self, CONSTANT.DBPath_CauseEffectDB)
+                DB.create(self, CONSTANT.DBPath_History)
+            DB.connect(self, CONSTANT.DBPath_History,
+                       CONSTANT.DBPath_HistoryName)
+            if not exists(CONSTANT.DBPath_CauseEffect):
+                DB.create(self, CONSTANT.DBPath_CauseEffect)
+            DB.connect(self, CONSTANT.DBPath_CauseEffect,
+                       CONSTANT.DBPath_CauseEffectName)
 
             """ Get usable entities """
             _entities = HASS.get_HASSEntities(
