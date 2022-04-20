@@ -47,7 +47,9 @@
   - [7.1. Hypothetical operation diagram](#71-hypothetical-operation-diagram)
     - [revision: 1.1 [20 April 2022]](#revision-11-20-april-2022)
       - [**Not complete, to be finished !**](#not-complete-to-be-finished-)
+          - [click to enlarge](#click-to-enlarge)
     - [revision: 1.0 [11 April 2022]](#revision-10-11-april-2022)
+          - [click to enlarge](#click-to-enlarge-1)
   - [7.2. Can you give a simpler explanation?](#72-can-you-give-a-simpler-explanation)
   - [7.3. Cool! But what are the difficulties?](#73-cool-but-what-are-the-difficulties)
 - [8. What is appDeamon?](#8-what-is-appdeamon)
@@ -130,14 +132,12 @@ This is only a general graph concept of my idea: if you have a better or another
 
 ### revision: 1.1 [20 April 2022] 
 #### **Not complete, to be finished !**
-
-<small>click to enlarge</small>
+###### click to enlarge
 
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"></a>
 
 ### revision: 1.0 [11 April 2022] 
-
-<small>click to enlarge</small>
+###### click to enlarge
 
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png" height="50"></a>
 
