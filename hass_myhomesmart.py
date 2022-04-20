@@ -40,45 +40,45 @@ import module.log as LOG
 
 class main(hass.Hass):
 
-    def entityStateChanged(self, entityName, attribute, old, new, kwargs):
-        try:
+    def entityStateChanged(self, entityName: str, attribute: dict, old: any, new: any, kwargs: dict):
+        """Support function to HASS.entityUpdate 
 
-            # Switch between Editable or ReadOnly entity
-            _editable = False
-            if "editable" in kwargs['attrs']:
-                _editable = kwargs['attrs']['editable']
-            if _editable:
-                HASS.update_EditableEntity(self, entityName, new, old, kwargs)
-            else:
-                HASS.update_ReadOnlyEntity(self, entityName, new, old, kwargs)
-
-        except Exception as e:
-            LOG.LogError(self, e, True)
+        Args:
+            entityName (str):         The name of entity
+            attribute (dict):         The attribute of entity (from appDeamon listen_state)
+            old (any):                The previous state of this entity
+            new (any):                The new state of this entity
+            kwargs (dict):            Extra arguments
+        """
+        _isEditable = False
+        if "editable" in kwargs['attrs']:
+            _isEditable = kwargs['attrs']['editable']
+        HASS.entityUpdate(self, entityName, new, old,
+                          attribute, _isEditable, kwargs)
 
     def initialize(self):
-
+        """Default entrypoint for appDeamon           
+        """
         try:
-
-            # Get usable entities
+            """ Get usable entities """
             _entities = HASS.get_HASSEntities(
                 self,
                 UTILITY.getConfigValue(self, "include_entities"),
                 UTILITY.getConfigValue(self, "exclude_entities")
             )
-            # Check if are any usable entities
+            """ Check if are any usable entities """
             if not _entities:
                 LOG.LogError(
                     "There are no entities to control or monitor", True)
             LOG.LogInfo(self, ("[ %s ] entities were found to be usable" %
                         len(_entities)))
-
-            # Subscribe on all entities
+            """ Subscribe on all entities """
             for _entityData in _entities.items():
                 _entityName = _entityData[0]
                 _entityAttrs = _entityData[1]
                 _entityObj = self.get_entity(_entityName)
                 _entityObj.listen_state(
                     self.entityStateChanged, attrs=_entityAttrs['attributes'])
-
         except Exception as e:
+            """ There has been an error """
             LOG.LogError(self, e, True)
