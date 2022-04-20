@@ -124,7 +124,17 @@ The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-
 ## 7.1. Hypothetical operation diagram
 This is only a general graph concept of my idea: if you have a better or another idea please see ( [maybe you can help me?](#11-cool-how-can-i-help-you) ) sections
 
-![Hypothetical operation diagram](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png)
+
+> rev: 1.1
+> 
+<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"></a>
+
+> rev: 1.0
+
+<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png" height="50"></a>
+
+
+
 
 ## 7.2. Can you give a simpler explanation?
 
