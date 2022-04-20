@@ -127,14 +127,16 @@ The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-
 # 7. How to apply this to Home Assistant ?
 
 ## 7.1. Hypothetical operation diagram
-This is only a general graph concept of my idea: if you have a better or another idea please see ( [maybe you can help me?](#11-cool-how-can-i-help-you) ) sections
+This is only a general graph concept of my idea.
+
+If you have a better or another idea please see [maybe you can help me?](#11-cool-how-can-i-help-you) sections
 
 
 ### revision: 1.1 [20 April 2022] 
 #### **Not complete, to be finished !**
 ###### click to enlarge
 
-<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"></a>
+<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"></a>
 
 ### revision: 1.0 [11 April 2022] 
 ###### click to enlarge
