@@ -17,6 +17,7 @@ def createDB(self: any, dbName: str):
         sql_as_string = sql_file.read()
         _cur = _dbConn.cursor()
         _cur.executescript(sql_as_string)
+        self.log("DB created: %s" % (dbName))
         return True
     except Exception as e:
         """ There has been an error """
