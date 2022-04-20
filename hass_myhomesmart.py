@@ -36,6 +36,10 @@ import module.utility as UTILITY
 import module.hass as HASS
 # Logging functions
 import module.log as LOG
+# Databaase functions
+import module.database as DB
+# filesystem "exists" from os
+from os.path import exists
 
 
 class main(hass.Hass):
@@ -60,6 +64,10 @@ class main(hass.Hass):
         """Default entrypoint for appDeamon           
         """
         try:
+            """ Check DB existence """
+            if not exists(CONSTANT.DBPath_History):
+                DB.createDB(self, CONSTANT.DBPath_History)
+
             """ Get usable entities """
             _entities = HASS.get_HASSEntities(
                 self,
