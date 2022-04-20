@@ -45,6 +45,8 @@
 - [6. The decision tree](#6-the-decision-tree)
 - [7. How to apply this to Home Assistant ?](#7-how-to-apply-this-to-home-assistant-)
   - [7.1. Hypothetical operation diagram](#71-hypothetical-operation-diagram)
+    - [revision: 1.1 [20 April 2022]](#revision-11-20-april-2022)
+    - [revision: 1.0 [11 April 2022]](#revision-10-11-april-2022)
   - [7.2. Can you give a simpler explanation?](#72-can-you-give-a-simpler-explanation)
   - [7.3. Cool! But what are the difficulties?](#73-cool-but-what-are-the-difficulties)
 - [8. What is appDeamon?](#8-what-is-appdeamon)
@@ -125,11 +127,15 @@ The general idea could be [this below](#how-to-apply-a-logical-decision-tree-to-
 This is only a general graph concept of my idea: if you have a better or another idea please see ( [maybe you can help me?](#11-cool-how-can-i-help-you) ) sections
 
 
-> rev: 1.1
-> 
+### revision: 1.1 [20 April 2022] 
+
+<small>click to enlarge</small>
+
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"></a>
 
-> rev: 1.0
+### revision: 1.0 [11 April 2022] 
+
+<small>click to enlarge</small>
 
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png" height="50"></a>
 
