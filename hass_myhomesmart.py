@@ -67,6 +67,8 @@ class main(hass.Hass):
             """ Check DB existence """
             if not exists(CONSTANT.DBPath_History):
                 DB.createDB(self, CONSTANT.DBPath_History)
+            if not exists(CONSTANT.DBPath_CauseEffectDB):
+                DB.createDB(self, CONSTANT.DBPath_CauseEffectDB)
 
             """ Get usable entities """
             _entities = HASS.get_HASSEntities(
