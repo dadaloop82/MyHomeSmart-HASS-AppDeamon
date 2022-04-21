@@ -7,6 +7,7 @@ import module.constant as CONSTANT
 # Logging functions
 import module.log as LOG
 
+# Global Class variable for DB Connections
 DBConn = {}
 
 
@@ -59,3 +60,38 @@ def connect(self: any, dbPath: str, dbName: str) -> bool:
             LOG.LogError(self, e, True)
             return False
     return True
+
+
+def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) -> dict:
+    """make a query to dbName (any query are allowed)
+
+    Args:
+        self (any):                 The appDeamon HASS Api
+        query (str):                The query
+        dbName (str):               The database name
+        fetchOne (bool, optional):  Fetch only one element/all elements Defaults to False.
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        dict: _description_
+    """
+    try:
+        if not dbName in DBConn:
+            raise ValueError("DB %s is not ready" % (dbName))
+        _cur = DBConn[dbName].cursor()
+        if kwargs:
+            _query = query.format(**kwargs)
+        _cur.execute(_query)
+        if not "INSERT" in query and not "INSERT" in query:
+            if fetchOne:
+                return _cur.fetchone()
+            else:
+                return _cur.fetchall()
+        else:
+            DBConn[dbName].commit()
+            return _cur.lastrowid
+    except sqlite3.Error as e:
+        """ There has been an error """
+        LOG.LogError(self, e, True)
+        return False

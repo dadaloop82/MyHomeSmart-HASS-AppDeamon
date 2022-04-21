@@ -1,3 +1,9 @@
+# Constants
+import module.constant as CONSTANT
+# Utility
+import module.utility as UTILITY
+
+
 def get_HASSEntities(self: any, includeEntities: dict, excludeEntities: dict) -> dict:
     """Retrieve available entities for myHomeSmart considering those to include and those to exclude
 
@@ -23,17 +29,44 @@ def get_HASSEntities(self: any, includeEntities: dict, excludeEntities: dict) ->
     return _tmpEntities
 
 
-def entityUpdate(self: any, entityName: str, attrs: dict, newState: str, oldState: str, kwargs: dict, editable: bool):
+def saveEntityDB(self: any,  DB: classmethod, data: dict):
+    """save, update or ignore entity on DB
+
+    Args:
+        self (any):                 The appDeamon HASS Api
+        DB (classmethod):           DATABASE class Method
+        data (dict):                The dictionary to save
+    """
+    query = "INSERT OR IGNORE INTO entity ({k}) VALUES ({v});"
+    DB.query(
+        self,
+        query,
+        CONSTANT.DBPath_HistoryName,
+        False,
+        k=','.join(data.keys()),
+        v=UTILITY.parseDictValueForSqlite(data)
+    )
+
+
+def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, oldState: str, attrs: dict, editable: bool, kwargs: dict):
     """Manage entity state changes
 
     Args:
         self (any):                 The appDeamon HASS Api
+        DB (module):                DATABASE class Method
         entityName (str):           The name of entity
         attrs (dict):               The attributes of entity
         newState (str):             The current state of entity
-        oldState (str):             The old state of entity        
+        oldState (str):             The old state of entity
         editable (bool):            Entity is of editable or read-only type
         kwargs (dict):              Extra arguments
     """
-
-    self.log("EditableEntity: %s -> %s" % (entityName, newState))
+    friendly_name = kwargs["attrs"]["friendly_name"] if "friendly_name" in kwargs["attrs"] else entityName
+    saveEntityDB(
+        self, DB, {
+            "HASS_Name": entityName,
+            "friendly_name": friendly_name,
+            "attributes": kwargs["attrs"],
+            "editable":  1 if "editable" in kwargs["attrs"] else 0,
+            "hash":  hash(entityName)+hash(friendly_name)+hash(editable),
+        })

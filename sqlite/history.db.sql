@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS entity (
   friendly_name text NOT NULL,
   attributes text NOT NULL,
   editable integer DEFAULT 0,
-	check_md5 text NOT NULL,
-  UNIQUE(HASS_name)
+	hash text NOT NULL,
+  UNIQUE(hash)
 );
 
 CREATE TABLE IF NOT EXISTS state (

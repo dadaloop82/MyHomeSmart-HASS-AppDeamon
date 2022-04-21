@@ -57,13 +57,15 @@ class main(hass.Hass):
         _isEditable = False
         if "editable" in kwargs['attrs']:
             _isEditable = kwargs['attrs']['editable']
-        HASS.entityUpdate(self, entityName, new, old,
+        HASS.entityUpdate(self, DB, entityName, new, old,
                           attribute, _isEditable, kwargs)
 
     def initialize(self):
         """Default entrypoint for appDeamon           
         """
+
         try:
+
             """ Check DB existence and connect them """
             if not exists(CONSTANT.DBPath_History):
                 DB.create(self, CONSTANT.DBPath_History)
@@ -80,12 +82,14 @@ class main(hass.Hass):
                 UTILITY.getConfigValue(self, "include_entities"),
                 UTILITY.getConfigValue(self, "exclude_entities")
             )
+
             """ Check if are any usable entities """
             if not _entities:
                 LOG.LogError(
                     "There are no entities to control or monitor", True)
             LOG.LogInfo(self, ("[ %s ] entities were found to be usable" %
                         len(_entities)))
+
             """ Subscribe on all entities """
             for _entityData in _entities.items():
                 _entityName = _entityData[0]
@@ -93,6 +97,7 @@ class main(hass.Hass):
                 _entityObj = self.get_entity(_entityName)
                 _entityObj.listen_state(
                     self.entityStateChanged, attrs=_entityAttrs['attributes'])
+
         except Exception as e:
             """ There has been an error """
             LOG.LogError(self, e, True)
