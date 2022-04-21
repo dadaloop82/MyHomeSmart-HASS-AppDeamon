@@ -29,22 +29,51 @@ def get_HASSEntities(self: any, includeEntities: dict, excludeEntities: dict) ->
     return _tmpEntities
 
 
-def saveEntityDB(self: any,  DB: classmethod, data: dict):
+def saveEntityDB(self: any,  DB: classmethod, data: dict) -> int:
     """save, update or ignore entity on DB
 
     Args:
         self (any):                 The appDeamon HASS Api
         DB (classmethod):           DATABASE class Method
         data (dict):                The dictionary to save
+
+    Returns:
+        (int):                      ID of this entity
     """
-    query = "INSERT OR IGNORE INTO entity ({k}) VALUES ({v});"
-    DB.query(
-        self,
-        query,
-        CONSTANT.DBPath_HistoryName,
-        False,
-        k=','.join(data.keys()),
-        v=UTILITY.parseDictValueForSqlite(data)
+    _query = "INSERT OR IGNORE INTO entity ({k}) VALUES ({v});"
+    return (
+        DB.query(
+            self,
+            _query,
+            CONSTANT.DBPath_HistoryName,
+            False,
+            k=','.join(data.keys()),
+            v=UTILITY.parseDictValueForSqlite(data)
+        )
+    )
+
+
+def saveEntityStateDB(self: any,  DB: classmethod, data: dict) -> int:
+    """save, update or ignore entity status on DB
+
+    Args:
+        self (any):                 The appDeamon HASS Api
+        DB (classmethod):           DATABASE class Method
+        data (dict):                The dictionary to save
+
+    Returns:
+        (int):                      ID of this entity
+    """
+    _query = "INSERT OR IGNORE INTO state ({k}) VALUES ({v});"
+    return (
+        DB.query(
+            self,
+            _query,
+            CONSTANT.DBPath_HistoryName,
+            False,
+            k=','.join(data.keys()),
+            v=UTILITY.parseDictValueForSqlite(data)
+        )
     )
 
 
@@ -62,7 +91,9 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
         kwargs (dict):              Extra arguments
     """
     friendly_name = kwargs["attrs"]["friendly_name"] if "friendly_name" in kwargs["attrs"] else entityName
-    saveEntityDB(
+
+    """ Save, update or ignore entity """
+    _entityID = saveEntityDB(
         self, DB, {
             "HASS_Name": entityName,
             "friendly_name": friendly_name,
@@ -70,3 +101,13 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
             "editable":  1 if "editable" in kwargs["attrs"] else 0,
             "hash":  hash(entityName)+hash(friendly_name)+hash(editable),
         })
+
+    """ Save, update or ignore state """
+    _stateID = saveEntityStateDB(
+        self, DB, {
+            "state": newState,
+            "type": "int" if UTILITY.is_number_tryexcept(newState) else "str"
+        })
+
+    self.log(_entityID)
+    self.log(_stateID)

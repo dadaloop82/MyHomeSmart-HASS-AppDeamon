@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS entity (
 CREATE TABLE IF NOT EXISTS state (
 	ID integer PRIMARY KEY AUTOINCREMENT,
 	state text NOT NULL,
-  type text NOT NULL  
+  type text NOT NULL,
+  UNIQUE(state)
 );
 
 CREATE TABLE IF NOT EXISTS nodes (

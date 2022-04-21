@@ -34,3 +34,12 @@ def parseDictValueForSqlite(v: dict) -> str:
             else "'"+str(x)+"'" for x in v.values()])
     except:
         return None
+
+
+def is_number_tryexcept(s):
+    """ Returns True is string is a number. """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
