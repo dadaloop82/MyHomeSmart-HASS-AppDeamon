@@ -28,8 +28,6 @@
 import hassapi as hass
 # Constants
 import module.constant as CONSTANT
-# Variables
-import module.variables as VARIABLES
 # Utility
 import module.utility as UTILITY
 # Home Assistant functions
@@ -44,6 +42,10 @@ from os.path import exists
 
 class main(hass.Hass):
 
+    # Global Class variable
+    lastNodeID = -1                     # last Entity id Changed
+    lastEditableEntity = -1
+
     def entityStateChanged(self, entityName: str, attribute: dict, old: any, new: any, kwargs: dict):
         """Support function to HASS.entityUpdate 
 
@@ -57,8 +59,16 @@ class main(hass.Hass):
         _isEditable = False
         if "editable" in kwargs['attrs']:
             _isEditable = kwargs['attrs']['editable']
-        HASS.entityUpdate(self, DB, entityName, new, old,
-                          attribute, _isEditable, kwargs)
+        _entityID, _nodeID = HASS.entityUpdate(self, DB, entityName, new, old,
+                                               attribute, _isEditable, self.lastNodeID, self.lastEditableEntity, kwargs)
+
+        self.lastNodeID = _nodeID
+
+        if(_isEditable and _entityID != self.lastEditableEntity):
+            self.lastEditableEntity = _entityID
+
+        self.log("[lastNodeID] %s: [lastEditableEntity] %s -> [_entityID] %s" %
+                 (self.lastNodeID, self.lastEditableEntity, _entityID))
 
     def initialize(self):
         """Default entrypoint for appDeamon           

@@ -49,8 +49,7 @@ def saveEntityDB(self: any,  DB: classmethod, data: dict) -> int:
             False,
             k=','.join(data.keys()),
             v=UTILITY.parseDictValueForSqlite(data)
-        )
-    )
+        ))
 
 
 def saveEntityStateDB(self: any,  DB: classmethod, data: dict) -> int:
@@ -73,33 +72,35 @@ def saveEntityStateDB(self: any,  DB: classmethod, data: dict) -> int:
             False,
             k=','.join(data.keys()),
             v=UTILITY.parseDictValueForSqlite(data)
-        )
-    )
+        ))
 
 
-def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, oldState: str, attrs: dict, editable: bool, kwargs: dict):
-    """Manage entity state changes
+def saveNodes(self: any,  DB: classmethod, data: dict) -> int:
+    _query = "INSERT OR IGNORE INTO nodes ({k}) VALUES ({v});"
+    return (
+        DB.query(
+            self,
+            _query,
+            CONSTANT.DBPath_HistoryName,
+            False,
+            k=','.join(data.keys()),
+            v=UTILITY.parseDictValueForSqlite(data)
+        ))
 
-    Args:
-        self (any):                 The appDeamon HASS Api
-        DB (module):                DATABASE class Method
-        entityName (str):           The name of entity
-        attrs (dict):               The attributes of entity
-        newState (str):             The current state of entity
-        oldState (str):             The old state of entity
-        editable (bool):            Entity is of editable or read-only type
-        kwargs (dict):              Extra arguments
-    """
+
+def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, oldState: str, attrs: dict, editable: bool, lastNodeID: int, lastEditableEntity: int, kwargs: dict) -> tuple:
+
     friendly_name = kwargs["attrs"]["friendly_name"] if "friendly_name" in kwargs["attrs"] else entityName
 
     """ Save, update or ignore entity """
+    _isEntityEditable = 1 if "editable" in kwargs["attrs"] else 0
     _entityID = saveEntityDB(
         self, DB, {
             "HASS_Name": entityName,
             "friendly_name": friendly_name,
             "attributes": kwargs["attrs"],
-            "editable":  1 if "editable" in kwargs["attrs"] else 0,
-            "hash":  hash(entityName)+hash(friendly_name)+hash(editable),
+            "editable":  _isEntityEditable,
+            "hash":  hash(entityName+friendly_name+"E" if editable else "R")
         })
 
     """ Save, update or ignore state """
@@ -109,5 +110,12 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
             "type": "int" if UTILITY.is_number_tryexcept(newState) else "str"
         })
 
-    self.log(_entityID)
-    self.log(_stateID)
+    """ Save the nodes when last_entityChanged is not null """
+    return _entityID, saveNodes(
+        self, DB, {
+            "lastEditableEntityID": lastEditableEntity,
+            "prevNodeID": lastNodeID,
+            "entityID": _entityID,
+            "stateID": _stateID,
+            "weight": 0
+        })

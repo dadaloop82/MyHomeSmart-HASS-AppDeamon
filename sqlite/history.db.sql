@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS entity (
   attributes text NOT NULL,
   editable integer DEFAULT 0,
 	hash text NOT NULL,
+  datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(hash)
 );
 
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS state (
 CREATE TABLE IF NOT EXISTS nodes (
 	ID integer PRIMARY KEY AUTOINCREMENT,
 	prevNodeID integer NOT NULL,
+  lastEditableEntityID integer NOT NULL,
   entityID integer NOT NULL,
   stateID integer NOT NULL,
   weight integer NOT NULL,

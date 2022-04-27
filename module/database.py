@@ -7,8 +7,8 @@ import module.constant as CONSTANT
 # Logging functions
 import module.log as LOG
 
-# Global Class variable for DB Connections
-DBConn = {}
+# Global Class variable
+DBConn = {}                     # DB Connections
 
 
 def create(self: any, dbName: str) -> bool:
