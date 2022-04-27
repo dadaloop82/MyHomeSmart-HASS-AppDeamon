@@ -22,6 +22,8 @@ def create(self: any, dbName: str) -> bool:
         bool:               True/False (False means errors)
     """
     try:
+        if not os.path.exists(CONSTANT.DBPath):
+            os.makedirs(CONSTANT.DBPath)
         _dbConn = sqlite3.connect(
             dbName, check_same_thread=False)
         sql_file = open(os.path.join(
@@ -34,6 +36,7 @@ def create(self: any, dbName: str) -> bool:
         return True
     except Exception as e:
         """ There has been an error """
+        self.log("DB creation: %s" % (dbName))
         LOG.LogError(self, e, True)
         return False
 
@@ -57,6 +60,7 @@ def connect(self: any, dbPath: str, dbName: str) -> bool:
             return True
         except Exception as e:
             """ There has been an error """
+            self.log("DB connect: %s" % (dbName))
             LOG.LogError(self, e, True)
             return False
     return True

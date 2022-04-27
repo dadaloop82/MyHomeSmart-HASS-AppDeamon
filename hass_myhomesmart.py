@@ -95,8 +95,8 @@ class main(hass.Hass):
 
             """ Check if are any usable entities """
             if not _entities:
-                LOG.LogError(
-                    "There are no entities to control or monitor", True)
+                LOG.LogError(self,
+                             "There are no entities to control or monitor", True)
             LOG.LogInfo(self, ("[ %s ] entities were found to be usable" %
                         len(_entities)))
 
