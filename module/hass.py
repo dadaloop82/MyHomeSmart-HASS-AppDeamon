@@ -29,7 +29,7 @@ def get_HASSEntities(self: any, includeEntities: dict, excludeEntities: dict) ->
     return _tmpEntities
 
 
-def saveEntityDB(self: any,  DB: classmethod, data: dict) -> int:
+def saveEntityDB(self: any,  DB: classmethod, data: dict, hash: hash) -> int:
     """save, update or ignore entity on DB
 
     Args:
@@ -41,6 +41,7 @@ def saveEntityDB(self: any,  DB: classmethod, data: dict) -> int:
         (int):                      ID of this entity
     """
     _query = "INSERT OR IGNORE INTO entity ({k}) VALUES ({v});"
+    _qS = "SELECT ID FROM entity WHERE hash='%s'" % (hash)
     return (
         DB.query(
             self,
@@ -48,7 +49,8 @@ def saveEntityDB(self: any,  DB: classmethod, data: dict) -> int:
             CONSTANT.DBPath_HistoryName,
             False,
             k=','.join(data.keys()),
-            v=UTILITY.parseDictValueForSqlite(data)
+            v=UTILITY.parseDictValueForSqlite(data),
+            selectQuery=_qS
         ))
 
 
@@ -94,14 +96,15 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
 
     """ Save, update or ignore entity """
     _isEntityEditable = 1 if "editable" in kwargs["attrs"] else 0
+    _hash = hash(entityName+friendly_name+"E" if editable else "R")
     _entityID = saveEntityDB(
         self, DB, {
             "HASS_Name": entityName,
             "friendly_name": friendly_name,
             "attributes": kwargs["attrs"],
             "editable":  _isEntityEditable,
-            "hash":  hash(entityName+friendly_name+"E" if editable else "R")
-        })
+            "hash":  _hash
+        }, _hash)
 
     """ Save, update or ignore state """
     _stateID = saveEntityStateDB(

@@ -87,13 +87,16 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
         if kwargs:
             _query = query.format(**kwargs)
         _cur.execute(_query)
-        if not "INSERT" in query and not "INSERT" in query:
+        if not "INSERT" in query:
             if fetchOne:
                 return _cur.fetchone()
             else:
                 return _cur.fetchall()
         else:
             DBConn[dbName].commit()
+            if "selectQuery" in kwargs:
+                _cur.execute(kwargs["selectQuery"])
+                return _cur.fetchone()[0]
             return _cur.lastrowid
     except sqlite3.Error as e:
         """ There has been an error """

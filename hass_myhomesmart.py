@@ -62,14 +62,13 @@ class main(hass.Hass):
         _entityID, _nodeID = HASS.entityUpdate(self, DB, entityName, new, old,
                                                attribute, _isEditable, self.lastNodeID, self.lastEditableEntity, kwargs)
 
+        LOG.info(self, "[lastNodeID] %s: [lastEditableEntity] %s -> [_entityID] %s" %
+                 (self.lastNodeID, self.lastEditableEntity, _entityID))
+
         self.lastNodeID = _nodeID
 
         if(_isEditable and _entityID != self.lastEditableEntity):
             self.lastEditableEntity = _entityID
-
-        LOG.info(self,"[lastNodeID] %s: [lastEditableEntity] %s -> [_entityID] %s" %
-                 (self.lastNodeID, self.lastEditableEntity, _entityID))
-
     def initialize(self):
         """Default entrypoint for appDeamon           
         """
@@ -96,9 +95,9 @@ class main(hass.Hass):
             """ Check if are any usable entities """
             if not _entities:
                 LOG.error(self,
-                             "There are no entities to control or monitor", True)
+                          "There are no entities to control or monitor, check apps.yaml", True)
             LOG.info(self, ("[ %s ] entities were found to be usable" %
-                        len(_entities)))
+                            len(_entities)))
 
             """ Subscribe on all entities """
             for _entityData in _entities.items():
