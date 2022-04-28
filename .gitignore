@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
@@ -161,3 +162,5 @@ cython_debug/
 
 # Database
 db/
+__pycache__/hass_myhomesmart.cpython-39.pyc
+__pycache__/hass_myhomesmart.cpython-39.pyc

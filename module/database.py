@@ -31,13 +31,13 @@ def create(self: any, dbName: str) -> bool:
         sql_as_string = sql_file.read()
         _cur = _dbConn.cursor()
         _cur.executescript(sql_as_string)
-        self.log("DB created: %s" % (dbName))
+        LOG.info(self, "DB created: %s" % (dbName))
         _dbConn.close()
         return True
     except Exception as e:
         """ There has been an error """
-        self.log("DB creation: %s" % (dbName))
-        LOG.LogError(self, e, True)
+        LOG.info(self, "DB creation: %s" % (dbName))
+        LOG.error(self, e, True)
         return False
 
 
@@ -56,12 +56,12 @@ def connect(self: any, dbPath: str, dbName: str) -> bool:
         try:
             DBConn[dbName] = sqlite3.connect(
                 dbPath, check_same_thread=False)
-            self.log("DB ready: %s" % (dbName))
+            LOG.info(self, "DB ready: %s" % (dbName))
             return True
         except Exception as e:
             """ There has been an error """
-            self.log("DB connect: %s" % (dbName))
-            LOG.LogError(self, e, True)
+            LOG.info(self, "DB connect: %s" % (dbName))
+            LOG.error(self, e, True)
             return False
     return True
 
@@ -97,5 +97,5 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
             return _cur.lastrowid
     except sqlite3.Error as e:
         """ There has been an error """
-        LOG.LogError(self, e, True)
+        LOG.error(self, e, True)
         return False

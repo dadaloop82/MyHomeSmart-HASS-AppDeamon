@@ -67,7 +67,7 @@ class main(hass.Hass):
         if(_isEditable and _entityID != self.lastEditableEntity):
             self.lastEditableEntity = _entityID
 
-        self.log("[lastNodeID] %s: [lastEditableEntity] %s -> [_entityID] %s" %
+        LOG.info(self,"[lastNodeID] %s: [lastEditableEntity] %s -> [_entityID] %s" %
                  (self.lastNodeID, self.lastEditableEntity, _entityID))
 
     def initialize(self):
@@ -95,9 +95,9 @@ class main(hass.Hass):
 
             """ Check if are any usable entities """
             if not _entities:
-                LOG.LogError(self,
+                LOG.error(self,
                              "There are no entities to control or monitor", True)
-            LOG.LogInfo(self, ("[ %s ] entities were found to be usable" %
+            LOG.info(self, ("[ %s ] entities were found to be usable" %
                         len(_entities)))
 
             """ Subscribe on all entities """
@@ -110,4 +110,4 @@ class main(hass.Hass):
 
         except Exception as e:
             """ There has been an error """
-            LOG.LogError(self, e, True)
+            LOG.error(self, e, True)
