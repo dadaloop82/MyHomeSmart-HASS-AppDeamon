@@ -20,4 +20,4 @@ DB_CauseEffectName = "causeeffect"
 DB_History = os.path.join(DBPath, "%s.db" % (DB_HistoryName))
 DB_CauseEffect = os.path.join(DBPath, "%s.db" % (DB_CauseEffectName))
 
-DEBUG_DB = True
+DEBUG_DB = False

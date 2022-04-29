@@ -68,12 +68,15 @@ def saveEntityStateDB(self: any,  DB: classmethod, data: dict, **kwargs: dict) -
     _query = "INSERT OR IGNORE INTO state ({k}) VALUES ({v});"
     if data["type"] == "int":
         """ Search for a numerical group that contains it """
-        _stateContainGroupID = SearchNumericGroupInState(
+        _stateContainGroupID, _qMax = SearchNumericGroupInState(
             self, DB, kwargs['entityID'], float(data["value"]))
         if not _stateContainGroupID:
             data["numvalue_min"] = data["numvalue_max"] = data["value"]
-        else:
+        elif not _qMax:
             return _stateContainGroupID
+        else:
+            data["numvalue_max"] = _qMax
+            data["numvalue_min"] = data["value"]
     return (
         DB.query(
             self,
@@ -98,12 +101,12 @@ def saveEntityState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> 
         ))
 
 
-def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intValueState: float) -> int:
+def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intValueState: float):
     if not entityID or not intValueState:
-        return 0
+        return None, None
 
     _stateID = 0
-    _baseQ = "SELECT state.ID FROM state "
+    _baseQ = "SELECT state.ID, state.numvalue_min, state.numvalue_max FROM state "
     _baseQ += "INNER JOIN entitystate on entitystate.stateID = state.ID "
     _baseQ += "WHERE entitystate.entityID = {e} "
 
@@ -122,15 +125,16 @@ def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intVal
         if _rQ:
             # best min closest number found
             # change the numvalue_max with this current
-            _q = "UPDATE state SET numvalue_max = {v} WHERE ID = {id}"
+            _q = "UPDATE state SET numvalue_max = {v}, value = {v}, frequency = frequency + 1 WHERE ID = {id}"
             _stateID = _rQ[0]
             _ = DB.query(self, _q.format(
                 v=intValueState, id=_rQ[0]), CONSTANT.DB_HistoryName, True)
+            return _rQ[0], None
         else:
             # best min closest number not found
             # sarch best max closest number
             _q = _baseQ
-            _q += "AND state.numvalue_min >= {v} "
+            _q += "AND state.numvalue_max >= {v} "
             _q += "ORDER BY ABS({v} - state.numvalue_max) "
             _q += "LIMIT 1"
             _rQ = DB.query(self, _q.format(
@@ -138,17 +142,20 @@ def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intVal
             if _rQ:
                 # best max closest number found
                 # change the numvalue_min with this current
-                _q = "UPDATE state SET numvalue_min = {v} WHERE ID = {id}"
+                _q = "UPDATE state SET numvalue_min = {v}, value = {v}, frequency = frequency + 1  WHERE ID = {id}"
                 _ = DB.query(self, _q.format(
                     v=intValueState, id=_rQ[0]), CONSTANT.DB_HistoryName, True)
-                _stateID = _rQ[0]
-
+                return _rQ[0], None
     else:
-        # contain
-        self.log("contained!")
+        # is contained
         _stateID = _rQ[0]
-        pass
-    return (_stateID)
+        # change the numvalue_max with this current
+        _q = "UPDATE state SET numvalue_max = {v} WHERE ID = {id}"
+        _ = DB.query(self, _q.format(
+            v=intValueState, id=_rQ[0]), CONSTANT.DB_HistoryName, True)
+        # create new group with this current value
+        return (_stateID, _rQ[2])
+    return (_stateID, None)
 
 
 def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, oldState: str, attrs: dict, editable: bool, lastNodeID: int, lastEditableEntity: int, kwargs: dict) -> tuple:
