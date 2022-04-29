@@ -76,10 +76,10 @@ class main(hass.Hass):
         try:
 
             """ Check DB existence and connect them """
-            if not exists(CONSTANT.DB_History):
-                DB.create(self, CONSTANT.DB_History)
-            DB.connect(self, CONSTANT.DB_History,
-                       CONSTANT.DB_HistoryName)
+            if not exists(CONSTANT.DB_EntityState):
+                DB.create(self, CONSTANT.DB_EntityState)
+            DB.connect(self, CONSTANT.DB_EntityState,
+                       CONSTANT.DB_EntityState)
             if not exists(CONSTANT.DB_CauseEffect):
                 DB.create(self, CONSTANT.DB_CauseEffect)
             DB.connect(self, CONSTANT.DB_CauseEffect,

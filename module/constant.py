@@ -14,10 +14,10 @@ NEWDB_Sql_path = os.path.join(
 DBPath = os.path.join(
     CWD, APPDEAMONDOCKER_APPS, APPFOLDER, "db")
 
-DB_HistoryName = "history"
-DB_CauseEffectName = "causeeffect"
+DB_EntityStateName = "entitystate_DB.db"
+DB_CauseEffectName = "causeeffect_DB.db"
 
-DB_History = os.path.join(DBPath, "%s.db" % (DB_HistoryName))
-DB_CauseEffect = os.path.join(DBPath, "%s.db" % (DB_CauseEffectName))
+DB_EntityState = os.path.join(DBPath, "%s" % (DB_EntityStateName))
+DB_CauseEffect = os.path.join(DBPath, "%s" % (DB_CauseEffectName))
 
 DEBUG_DB = False
