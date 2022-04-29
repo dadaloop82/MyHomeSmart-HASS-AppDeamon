@@ -135,14 +135,11 @@ If you have a better or another idea please see [maybe you can help me?](#11-coo
 
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/MyHomeSmart-concept-learningBlock_v1.2.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/MyHomeSmart-concept-learningBlock_v1.2.drawio.png"></a>
 
-### revision: 1.1 [20 April 2022] 
-###### click to enlarge
+###### revision: 1.1 [20 April 2022] 
 
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png" height="50"></a>
 
-
-### revision: 1.0 [11 April 2022] 
-###### click to enlarge
+###### revision: 1.0 [11 April 2022] 
 
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png" height="50"></a>
 
