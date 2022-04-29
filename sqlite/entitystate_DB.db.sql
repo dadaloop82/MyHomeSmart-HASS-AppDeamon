@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS state (
 CREATE TABLE IF NOT EXISTS entitystate (
 	ID integer PRIMARY KEY AUTOINCREMENT,	  
   entityID integer NOT NULL,
-  stateID integer NOT NULL,
-  count integer NOT NULL,
+  stateID integer NOT NULL,  
   datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 );

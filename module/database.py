@@ -97,7 +97,8 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
         else:
             DBConn[dbName].commit()
             if "selectQuery" in kwargs:
-                self.log("sQ: [ %s ]" % (kwargs["selectQuery"]))
+                if CONSTANT.DEBUG_DB:
+                    self.log("sQ: [ %s ]" % (kwargs["selectQuery"]))
                 _cur.execute(kwargs["selectQuery"])
                 return _cur.fetchone()[0]
             return _cur.lastrowid

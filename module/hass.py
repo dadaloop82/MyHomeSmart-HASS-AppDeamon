@@ -42,19 +42,18 @@ def saveEntityDB(self: any,  DB: classmethod, data: dict) -> int:
     """
     _query = "INSERT OR IGNORE INTO entity ({k}) VALUES ({v});"
     _qS = "SELECT ID FROM entity WHERE HASS_name='%s'" % (data["HASS_Name"])
-    return (
-        DB.query(
-            self,
-            _query,
-            CONSTANT.DB_EntityState,
-            False,
-            k=','.join(data.keys()),
-            v=UTILITY.parseDictValueForSqlite(data),
-            selectQuery=_qS
-        ))
+    return DB.query(
+        self,
+        _query,
+        CONSTANT.DB_EntityState,
+        False,
+        k=','.join(data.keys()),
+        v=UTILITY.parseDictValueForSqlite(data),
+        selectQuery=_qS
+    )
 
 
-def saveEntityStateDB(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
+def saveState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
     """save, update or ignore entity status on DB
 
     Args:
@@ -78,29 +77,27 @@ def saveEntityStateDB(self: any,  DB: classmethod, data: dict, **kwargs: dict) -
         else:
             data["numvalue_max"] = _qMax
             data["numvalue_min"] = data["value"]
-    return (
-        DB.query(
-            self,
-            _query,
-            CONSTANT.DB_EntityState,
-            False,
-            k=','.join(data.keys()),
-            v=UTILITY.parseDictValueForSqlite(data),
-            selectQuery=_qS.format(v=data["value"])
-        ))
+    return DB.query(
+        self,
+        _query,
+        CONSTANT.DB_EntityState,
+        False,
+        k=','.join(data.keys()),
+        v=UTILITY.parseDictValueForSqlite(data),
+        selectQuery=_qS.format(v=data["value"])
+    )
 
 
 def saveEntityState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
     _query = "INSERT OR IGNORE INTO entitystate ({k}) VALUES ({v});"
-    return (
-        DB.query(
-            self,
-            _query,
-            CONSTANT.DB_EntityState,
-            False,
-            k=','.join(data.keys()),
-            v=UTILITY.parseDictValueForSqlite(data)
-        ))
+    return DB.query(
+        self,
+        _query,
+        CONSTANT.DB_EntityState,
+        False,
+        k=','.join(data.keys()),
+        v=UTILITY.parseDictValueForSqlite(data)
+    )
 
 
 def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intValueState: float):
@@ -173,7 +170,7 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
         })
 
     """ Save, update or ignore state """
-    _stateID = saveEntityStateDB(
+    _stateID = saveState(
         self, DB, {
             "value": newState,
             "type": "int" if UTILITY.is_number_tryexcept(newState) else "str"
@@ -183,6 +180,5 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
     return _entityID, saveEntityState(
         self, DB, {
             "entityID": _entityID,
-            "stateID": _stateID,
-            "count": 0
+            "stateID": _stateID
         })
