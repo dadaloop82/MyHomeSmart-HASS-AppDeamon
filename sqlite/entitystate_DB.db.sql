@@ -14,14 +14,13 @@ CREATE TABLE IF NOT EXISTS state (
 	value text NOT NULL,
   type text NOT NULL,  
   numvalue_min integer DEFAULT 0,
-  numvalue_max integer DEFAULT 0,
-  frequency integer DEFAULT 0,
+  numvalue_max integer DEFAULT 0,  
   UNIQUE(value)
 );
 
 CREATE TABLE IF NOT EXISTS entitystate (
 	ID integer PRIMARY KEY AUTOINCREMENT,	  
   entityID integer NOT NULL,
-  stateID integer NOT NULL,  
+  stateID integer NOT NULL,    
   datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 );
