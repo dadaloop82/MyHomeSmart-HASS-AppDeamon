@@ -82,11 +82,11 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
     """
     try:
         if not dbName in DBConn:
-            raise ValueError("DB %s is not ready" % (dbName))
+            LOG.error(self, "DB %s is not ready" % (dbName), True)
         _cur = DBConn[dbName].cursor()
         if kwargs:
-            _query = query.format(**kwargs)
-        _cur.execute(_query)
+            query = query.format(**kwargs)
+        _cur.execute(query)
         if not "INSERT" in query:
             if fetchOne:
                 return _cur.fetchone()

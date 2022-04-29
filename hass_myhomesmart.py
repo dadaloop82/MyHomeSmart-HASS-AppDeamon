@@ -76,14 +76,14 @@ class main(hass.Hass):
         try:
 
             """ Check DB existence and connect them """
-            if not exists(CONSTANT.DBPath_History):
-                DB.create(self, CONSTANT.DBPath_History)
-            DB.connect(self, CONSTANT.DBPath_History,
-                       CONSTANT.DBPath_HistoryName)
-            if not exists(CONSTANT.DBPath_CauseEffect):
-                DB.create(self, CONSTANT.DBPath_CauseEffect)
-            DB.connect(self, CONSTANT.DBPath_CauseEffect,
-                       CONSTANT.DBPath_CauseEffectName)
+            if not exists(CONSTANT.DB_History):
+                DB.create(self, CONSTANT.DB_History)
+            DB.connect(self, CONSTANT.DB_History,
+                       CONSTANT.DB_HistoryName)
+            if not exists(CONSTANT.DB_CauseEffect):
+                DB.create(self, CONSTANT.DB_CauseEffect)
+            DB.connect(self, CONSTANT.DB_CauseEffect,
+                       CONSTANT.DB_CauseEffectName)
 
             """ Get usable entities """
             _entities = HASS.get_HASSEntities(

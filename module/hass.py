@@ -46,7 +46,7 @@ def saveEntityDB(self: any,  DB: classmethod, data: dict, hash: hash) -> int:
         DB.query(
             self,
             _query,
-            CONSTANT.DBPath_HistoryName,
+            CONSTANT.DB_HistoryName,
             False,
             k=','.join(data.keys()),
             v=UTILITY.parseDictValueForSqlite(data),
@@ -54,7 +54,7 @@ def saveEntityDB(self: any,  DB: classmethod, data: dict, hash: hash) -> int:
         ))
 
 
-def saveEntityStateDB(self: any,  DB: classmethod, data: dict) -> int:
+def saveEntityStateDB(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
     """save, update or ignore entity status on DB
 
     Args:
@@ -66,34 +66,46 @@ def saveEntityStateDB(self: any,  DB: classmethod, data: dict) -> int:
         (int):                      ID of this entity
     """
     _query = "INSERT OR IGNORE INTO state ({k}) VALUES ({v});"
+    if data["type"] == "int":
+        """ Search for a numerical group that contains it """
+        _stateContainGroupID = SearchNumericGroupInState(
+            self, DB, kwargs['entityID'], float(data["value"]))
     return (
         DB.query(
             self,
             _query,
-            CONSTANT.DBPath_HistoryName,
+            CONSTANT.DB_HistoryName,
             False,
             k=','.join(data.keys()),
             v=UTILITY.parseDictValueForSqlite(data)
         ))
 
 
-def saveNodes(self: any,  DB: classmethod, data: dict) -> int:
-    _query = "INSERT OR IGNORE INTO nodes ({k}) VALUES ({v});"
+def saveEntityState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
+    _query = "INSERT OR IGNORE INTO entitystate ({k}) VALUES ({v});"
     return (
         DB.query(
             self,
             _query,
-            CONSTANT.DBPath_HistoryName,
+            CONSTANT.DB_HistoryName,
             False,
             k=','.join(data.keys()),
             v=UTILITY.parseDictValueForSqlite(data)
         ))
+
+
+def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intValueState: float) -> dict:
+    if not entityID or not intValueState:
+        return 0
+    _q = "SELECT value FROM state "
+    _q += "INNER JOIN entitystate on entitystate.stateID = state.ID "
+    _q += "WHERE entitystate.entityID = {e} AND {v} BETWEEN state.numvalue_min AND state.numvalue_max"
+    return DB.query(self, _q.format(
+        e=entityID, v=intValueState), CONSTANT.DB_HistoryName, True)
 
 
 def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, oldState: str, attrs: dict, editable: bool, lastNodeID: int, lastEditableEntity: int, kwargs: dict) -> tuple:
-
     friendly_name = kwargs["attrs"]["friendly_name"] if "friendly_name" in kwargs["attrs"] else entityName
-
     """ Save, update or ignore entity """
     _isEntityEditable = 1 if "editable" in kwargs["attrs"] else 0
     _hash = hash(entityName+friendly_name+"E" if editable else "R")
@@ -109,16 +121,14 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
     """ Save, update or ignore state """
     _stateID = saveEntityStateDB(
         self, DB, {
-            "state": newState,
+            "value": newState,
             "type": "int" if UTILITY.is_number_tryexcept(newState) else "str"
-        })
+        }, entityID=_entityID)
 
-    """ Save the nodes when last_entityChanged is not null """
-    return _entityID, saveNodes(
+    """ Save the entityState when last_entityChanged is not null """
+    return _entityID, saveEntityState(
         self, DB, {
-            "lastEditableEntityID": lastEditableEntity,
-            "prevNodeID": lastNodeID,
             "entityID": _entityID,
             "stateID": _stateID,
-            "weight": 0
+            "count": 0
         })
