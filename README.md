@@ -68,7 +68,7 @@
 - Documentation: **Done**
 - Base & data collection: **Done**
 - Storing status values in an optimized way **Done**
-- Storing entity<>status in an optimized way **IN DEVELOPING**
+- Storing entity<>status in an optimized way **Done**
 - Cause->Effect identification **IN DEVELOPING**
 - ......
 - ......
