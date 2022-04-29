@@ -67,7 +67,11 @@
 
 - Documentation: **Done**
 - Base & data collection: **Done**
+- Storing status values in an optimized way **IN DEVELOPING**
 - Cause->Effect identification **IN DEVELOPING**
+- ......
+- ......
+- ......
 
 # 2. What does mean "Give intelligence to Home automation"?
 
