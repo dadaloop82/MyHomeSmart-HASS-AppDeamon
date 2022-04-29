@@ -138,7 +138,7 @@ If you have a better or another idea please see [maybe you can help me?](#11-coo
 ### revision: 1.1 [20 April 2022] 
 ###### click to enlarge
 
-<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"></a>
+<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png" height="50"></a>
 
 
 ### revision: 1.0 [11 April 2022] 
