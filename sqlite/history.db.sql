@@ -4,10 +4,9 @@ CREATE TABLE IF NOT EXISTS entity (
 	HASS_name text NOT NULL,
   friendly_name text NOT NULL,
   attributes text NOT NULL,
-  editable integer DEFAULT 0,
-	hash text NOT NULL,
+  editable integer DEFAULT 0,	
   datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(hash)
+  UNIQUE(HASS_name)
 );
 
 CREATE TABLE IF NOT EXISTS state (

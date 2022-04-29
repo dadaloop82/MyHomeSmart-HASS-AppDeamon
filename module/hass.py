@@ -29,7 +29,7 @@ def get_HASSEntities(self: any, includeEntities: dict, excludeEntities: dict) ->
     return _tmpEntities
 
 
-def saveEntityDB(self: any,  DB: classmethod, data: dict, hash: hash) -> int:
+def saveEntityDB(self: any,  DB: classmethod, data: dict) -> int:
     """save, update or ignore entity on DB
 
     Args:
@@ -41,7 +41,7 @@ def saveEntityDB(self: any,  DB: classmethod, data: dict, hash: hash) -> int:
         (int):                      ID of this entity
     """
     _query = "INSERT OR IGNORE INTO entity ({k}) VALUES ({v});"
-    _qS = "SELECT ID FROM entity WHERE hash='%s'" % (hash)
+    _qS = "SELECT ID FROM entity WHERE HASS_name='%s'" % (data["HASS_Name"])
     return (
         DB.query(
             self,
@@ -70,6 +70,10 @@ def saveEntityStateDB(self: any,  DB: classmethod, data: dict, **kwargs: dict) -
         """ Search for a numerical group that contains it """
         _stateContainGroupID = SearchNumericGroupInState(
             self, DB, kwargs['entityID'], float(data["value"]))
+        if not _stateContainGroupID:
+            data["numvalue_min"] = data["numvalue_max"] = data["value"]
+        else:
+            return _stateContainGroupID
     return (
         DB.query(
             self,
@@ -94,29 +98,70 @@ def saveEntityState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> 
         ))
 
 
-def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intValueState: float) -> dict:
+def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intValueState: float) -> int:
     if not entityID or not intValueState:
         return 0
-    _q = "SELECT value FROM state "
-    _q += "INNER JOIN entitystate on entitystate.stateID = state.ID "
-    _q += "WHERE entitystate.entityID = {e} AND {v} BETWEEN state.numvalue_min AND state.numvalue_max"
-    return DB.query(self, _q.format(
+
+    _stateID = 0
+    _baseQ = "SELECT state.ID FROM state "
+    _baseQ += "INNER JOIN entitystate on entitystate.stateID = state.ID "
+    _baseQ += "WHERE entitystate.entityID = {e} "
+
+    _q = _baseQ
+    _q += "AND {v} BETWEEN state.numvalue_min AND state.numvalue_max"
+    _rQ = DB.query(self, _q.format(
         e=entityID, v=intValueState), CONSTANT.DB_HistoryName, True)
+    if not _rQ:
+        # not cointain - check the best min closest number
+        _q = _baseQ
+        _q += "AND state.numvalue_min <= {v} "
+        _q += "ORDER BY ABS({v} - state.numvalue_min) "
+        _q += "LIMIT 1"
+        _rQ = DB.query(self, _q.format(
+            e=entityID, v=intValueState), CONSTANT.DB_HistoryName, True)
+        if _rQ:
+            # best min closest number found
+            # change the numvalue_max with this current
+            _q = "UPDATE state SET numvalue_max = {v} WHERE ID = {id}"
+            _stateID = _rQ[0]
+            _ = DB.query(self, _q.format(
+                v=intValueState, id=_rQ[0]), CONSTANT.DB_HistoryName, True)
+        else:
+            # best min closest number not found
+            # sarch best max closest number
+            _q = _baseQ
+            _q += "AND state.numvalue_min >= {v} "
+            _q += "ORDER BY ABS({v} - state.numvalue_max) "
+            _q += "LIMIT 1"
+            _rQ = DB.query(self, _q.format(
+                e=entityID, v=intValueState), CONSTANT.DB_HistoryName, True)
+            if _rQ:
+                # best max closest number found
+                # change the numvalue_min with this current
+                _q = "UPDATE state SET numvalue_min = {v} WHERE ID = {id}"
+                _ = DB.query(self, _q.format(
+                    v=intValueState, id=_rQ[0]), CONSTANT.DB_HistoryName, True)
+                _stateID = _rQ[0]
+
+    else:
+        # contain
+        self.log("contained!")
+        _stateID = _rQ[0]
+        pass
+    return (_stateID)
 
 
 def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, oldState: str, attrs: dict, editable: bool, lastNodeID: int, lastEditableEntity: int, kwargs: dict) -> tuple:
     friendly_name = kwargs["attrs"]["friendly_name"] if "friendly_name" in kwargs["attrs"] else entityName
     """ Save, update or ignore entity """
     _isEntityEditable = 1 if "editable" in kwargs["attrs"] else 0
-    _hash = hash(entityName+friendly_name+"E" if editable else "R")
     _entityID = saveEntityDB(
         self, DB, {
             "HASS_Name": entityName,
             "friendly_name": friendly_name,
             "attributes": kwargs["attrs"],
-            "editable":  _isEntityEditable,
-            "hash":  _hash
-        }, _hash)
+            "editable":  _isEntityEditable
+        })
 
     """ Save, update or ignore state """
     _stateID = saveEntityStateDB(

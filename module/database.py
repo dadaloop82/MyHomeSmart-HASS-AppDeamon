@@ -86,8 +86,10 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
         _cur = DBConn[dbName].cursor()
         if kwargs:
             query = query.format(**kwargs)
+        if CONSTANT.DEBUG_DB:
+            self.log("[ %s ]" % (query))
         _cur.execute(query)
-        if not "INSERT" in query:
+        if "SELECT" in query:
             if fetchOne:
                 return _cur.fetchone()
             else:

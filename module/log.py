@@ -17,7 +17,7 @@ def error(self: any, text: str, die: bool = False):
                (inspect.stack()[1][3], inspect.stack()[1][2], text))
     if die:
         info(self, "################################################################")
-        info(self, "due to this error, %s cannot continue and must be restarted." %
+        info(self, "Due to this error, %s cannot continue and must be restarted." %
              (CONSTANT.APP_NAME))
         info(self, "################################################################")
     info(self, "== Traceback ==")
