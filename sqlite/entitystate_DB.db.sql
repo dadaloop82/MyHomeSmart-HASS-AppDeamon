@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS state (
   type text NOT NULL,  
   numvalue_min integer DEFAULT 0,
   numvalue_max integer DEFAULT 0,
-  frequency integer DEFAULT 0
+  frequency integer DEFAULT 0,
+  UNIQUE(value)
 );
 
 CREATE TABLE IF NOT EXISTS entitystate (

@@ -66,6 +66,7 @@ def saveEntityStateDB(self: any,  DB: classmethod, data: dict, **kwargs: dict) -
         (int):                      ID of this entity
     """
     _query = "INSERT OR IGNORE INTO state ({k}) VALUES ({v});"
+    _qS = "SELECT ID FROM state WHERE value='{v}'"
     if data["type"] == "int":
         """ Search for a numerical group that contains it """
         _stateContainGroupID, _qMax = SearchNumericGroupInState(
@@ -84,7 +85,8 @@ def saveEntityStateDB(self: any,  DB: classmethod, data: dict, **kwargs: dict) -
             CONSTANT.DB_EntityState,
             False,
             k=','.join(data.keys()),
-            v=UTILITY.parseDictValueForSqlite(data)
+            v=UTILITY.parseDictValueForSqlite(data),
+            selectQuery=_qS.format(v=data["value"])
         ))
 
 

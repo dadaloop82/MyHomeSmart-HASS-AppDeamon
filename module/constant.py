@@ -20,4 +20,4 @@ DB_CauseEffectName = "causeeffect_DB.db"
 DB_EntityState = os.path.join(DBPath, "%s" % (DB_EntityStateName))
 DB_CauseEffect = os.path.join(DBPath, "%s" % (DB_CauseEffectName))
 
-DEBUG_DB = False
+DEBUG_DB = True
