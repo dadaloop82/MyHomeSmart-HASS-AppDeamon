@@ -65,18 +65,18 @@ def saveState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
         (int):                      ID of this entity
     """
     _query = "INSERT OR IGNORE INTO state ({k}) VALUES ({v});"
-    _qS = "SELECT ID FROM state WHERE value='{v}'"
-    if data["type"] == "int":
+    _qS = "SELECT ID FROM state WHERE value='{v}' and entityID={e}"
+    if kwargs['type'] == "int":
         """ Search for a numerical group that contains it """
         _stateContainGroupID, _qMax = SearchNumericGroupInState(
-            self, DB, kwargs['entityID'], float(data["value"]))
+            self, DB, kwargs['entityID'], float(kwargs["value"]))
         if not _stateContainGroupID:
             data["numvalue_min"] = data["numvalue_max"] = data["value"]
         elif not _qMax:
             return _stateContainGroupID
         else:
             data["numvalue_max"] = _qMax
-            data["numvalue_min"] = data["value"]
+            data["numvalue_min"] = kwargs["value"]
     return DB.query(
         self,
         _query,
@@ -84,7 +84,7 @@ def saveState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
         False,
         k=','.join(data.keys()),
         v=UTILITY.parseDictValueForSqlite(data),
-        selectQuery=_qS.format(v=data["value"])
+        selectQuery=_qS.format(v=kwargs["value"], e=kwargs['entityID'])
     )
 
 
@@ -107,6 +107,7 @@ def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intVal
     _stateID = 0
     _baseQ = "SELECT state.ID, state.numvalue_min, state.numvalue_max FROM state "
     _baseQ += "INNER JOIN entitystate on entitystate.stateID = state.ID "
+    _baseQ += "AND entitystate.entityID = state.entityID "
     _baseQ += "WHERE entitystate.entityID = {e} "
 
     _q = _baseQ
@@ -124,7 +125,7 @@ def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intVal
         if _rQ:
             # best min closest number found
             # change the numvalue_max with this current
-            _q = "UPDATE state SET numvalue_max = {v}, value = {v} WHERE ID = {id}"
+            _q = "UPDATE state SET numvalue_max = {v}, value = {v}, frequency=frequency+1 WHERE ID = {id}"
             _stateID = _rQ[0]
             _ = DB.query(self, _q.format(
                 v=intValueState, id=_rQ[0]), CONSTANT.DB_EntityState, True)
@@ -141,7 +142,7 @@ def SearchNumericGroupInState(self: any,  DB: classmethod, entityID: int, intVal
             if _rQ:
                 # best max closest number found
                 # change the numvalue_min with this current
-                _q = "UPDATE state SET numvalue_min = {v}, value = {v} WHERE ID = {id}"
+                _q = "UPDATE state SET numvalue_min = {v}, value = {v}, frequency=frequency+1 WHERE ID = {id}"
                 _ = DB.query(self, _q.format(
                     v=intValueState, id=_rQ[0]), CONSTANT.DB_EntityState, True)
                 return _rQ[0], None
@@ -170,11 +171,18 @@ def entityUpdate(self: any, DB: classmethod, entityName: str,  newState: str, ol
         })
 
     """ Save, update or ignore state """
+    _type = "int" if UTILITY.is_number_tryexcept(newState) else "str"
     _stateID = saveState(
         self, DB, {
             "value": newState,
-            "type": "int" if UTILITY.is_number_tryexcept(newState) else "str"
-        }, entityID=_entityID)
+            "entityID": _entityID,
+            "type": _type
+        },
+        value=newState,
+        entityID=_entityID,
+        type=_type,
+
+    )
 
     """ Save the entityState when last_entityChanged is not null """
     _entityStateID = _entityID, saveEntityState(

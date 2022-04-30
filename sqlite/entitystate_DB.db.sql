@@ -11,10 +11,12 @@ CREATE TABLE IF NOT EXISTS entity (
 
 CREATE TABLE IF NOT EXISTS state (
 	ID integer PRIMARY KEY AUTOINCREMENT,
+  entityID integer NOT NULL,
 	value text NOT NULL,
   type text NOT NULL,  
   numvalue_min integer DEFAULT 0,
   numvalue_max integer DEFAULT 0,  
+  frequency integer DEFAULT 0,  
   UNIQUE(value)
 );
 
