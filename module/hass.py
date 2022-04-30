@@ -66,6 +66,7 @@ def saveState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
     """
     _query = "INSERT OR IGNORE INTO state ({k}) VALUES ({v});"
     _qS = "SELECT ID FROM state WHERE value='{v}' and entityID={e}"
+    _qU = "UPDATE state SET frequency=frequency+1 WHERE ID = {id}"
     if kwargs['type'] == "int":
         """ Search for a numerical group that contains it """
         _stateContainGroupID, _qMax = SearchNumericGroupInState(
@@ -84,7 +85,8 @@ def saveState(self: any,  DB: classmethod, data: dict, **kwargs: dict) -> int:
         False,
         k=','.join(data.keys()),
         v=UTILITY.parseDictValueForSqlite(data),
-        selectQuery=_qS.format(v=kwargs["value"], e=kwargs['entityID'])
+        selectQuery=_qS.format(v=kwargs["value"], e=kwargs['entityID']),
+        updateQuery=_qU
     )
 
 

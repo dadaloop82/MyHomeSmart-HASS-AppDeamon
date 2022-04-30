@@ -100,7 +100,12 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
                 if CONSTANT.DEBUG_DB:
                     self.log("sQ: [ %s ]" % (kwargs["selectQuery"]))
                 _cur.execute(kwargs["selectQuery"])
-                return _cur.fetchone()[0]
+                _retID = _cur.fetchone()[0]
+                if "updateQuery" in kwargs:
+                    if CONSTANT.DEBUG_DB:
+                        self.log("sU: [ %s ]" % (kwargs["selectQuery"]))
+                    _cur.execute(kwargs["updateQuery"].format(id=_retID))
+                return _retID
             return _cur.lastrowid
     except sqlite3.Error as e:
         """ There has been an error """
