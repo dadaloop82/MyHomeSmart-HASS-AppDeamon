@@ -88,6 +88,17 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
             query = query.format(**kwargs)
         if CONSTANT.DEBUG_DB:
             self.log("[ %s ]" % (query))
+        if "selectQuery" in kwargs:
+            if CONSTANT.DEBUG_DB:
+                self.log("sQ: [ %s ]" % (kwargs["selectQuery"]))
+            _cur.execute(kwargs["selectQuery"])
+            _retID = _cur.fetchone()
+            if _retID:
+                if "updateQuery" in kwargs:
+                    if CONSTANT.DEBUG_DB:
+                        self.log("sU: [ %s ]" % (kwargs["updateQuery"]))
+                    _cur.execute(kwargs["updateQuery"].format(id=_retID[0]))
+                return _retID[0]
         _cur.execute(query)
         if "SELECT" in query:
             if fetchOne:
@@ -96,17 +107,7 @@ def query(self: any, query: str, dbName: str, fetchOne: bool = False, **kwargs) 
                 return _cur.fetchall()
         else:
             DBConn[dbName].commit()
-            if "selectQuery" in kwargs:
-                if CONSTANT.DEBUG_DB:
-                    self.log("sQ: [ %s ]" % (kwargs["selectQuery"]))
-                _cur.execute(kwargs["selectQuery"])
-                _retID = _cur.fetchone()[0]
-                if "updateQuery" in kwargs:
-                    if CONSTANT.DEBUG_DB:
-                        self.log("sU: [ %s ]" % (kwargs["selectQuery"]))
-                    _cur.execute(kwargs["updateQuery"].format(id=_retID))
-                return _retID
-            return _cur.lastrowid
+        return _cur.lastrowid
     except sqlite3.Error as e:
         """ There has been an error """
         LOG.error(self, e, True)
