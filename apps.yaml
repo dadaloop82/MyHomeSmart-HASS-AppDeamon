@@ -21,6 +21,7 @@ hass_myhomesmart:
       # The system will automatically recognize read-only entities from editable ones      
       include_entities:                
         - sensor.*
+        - light.*
         - switch.*
         - input_boolean.*
         - input_number.*

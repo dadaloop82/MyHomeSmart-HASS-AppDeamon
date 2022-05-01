@@ -37,7 +37,7 @@
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
-    - [Project Status:](#project-status)
+    - [1.0.1. Project Status:](#101-project-status)
 - [2. What does mean "Give intelligence to Home automation"?](#2-what-does-mean-give-intelligence-to-home-automation)
 - [3. What is the goal of this project?](#3-what-is-the-goal-of-this-project)
 - [4. Why with Home Assistant?](#4-why-with-home-assistant)
@@ -45,25 +45,24 @@
 - [6. The decision tree](#6-the-decision-tree)
 - [7. How to apply this to Home Assistant ?](#7-how-to-apply-this-to-home-assistant-)
   - [7.1. Hypothetical operation diagram](#71-hypothetical-operation-diagram)
-    - [revision: 1.1 [20 April 2022]](#revision-11-20-april-2022)
-      - [**Not complete, to be finished !**](#not-complete-to-be-finished-)
-          - [click to enlarge](#click-to-enlarge)
-    - [revision: 1.0 [11 April 2022]](#revision-10-11-april-2022)
-          - [click to enlarge](#click-to-enlarge-1)
+    - [7.1.1. revision: 1.3 [30 April 2022]](#711-revision-13-30-april-2022)
+      - [7.1.1.1. **Not complete, to be finished !**](#7111-not-complete-to-be-finished-)
+          - [7.1.1.1.0.1. click to enlarge](#711101-click-to-enlarge)
+          - [7.1.1.1.0.2. Older version](#711102-older-version)
   - [7.2. Can you give a simpler explanation?](#72-can-you-give-a-simpler-explanation)
   - [7.3. Cool! But what are the difficulties?](#73-cool-but-what-are-the-difficulties)
 - [8. What is appDeamon?](#8-what-is-appdeamon)
 - [9. How to install the script?](#9-how-to-install-the-script)
-    - [**Follow these instructions ONLY if a stable, finished version has been released!**](#follow-these-instructions-only-if-a-stable-finished-version-has-been-released)
-    - [*Look at the top of this readme !*](#look-at-the-top-of-this-readme-)
-- [](#)
-- [10. "The Reasoning" _on Hass Forum_](#10-the-reasoning-on-hass-forum)
-- [11. Cool! How can I help you?](#11-cool-how-can-i-help-you)
+    - [9.0.1. **Follow these instructions ONLY if a stable, finished version has been released!**](#901-follow-these-instructions-only-if-a-stable-finished-version-has-been-released)
+    - [9.0.2. *Look at the top of this readme !*](#902-look-at-the-top-of-this-readme-)
+- [10.](#10)
+- [11. "The Reasoning" _on Hass Forum_](#11-the-reasoning-on-hass-forum)
+- [12. Cool! How can I help you?](#12-cool-how-can-i-help-you)
 #
 
 # 1. Project Progress
 
-### Project Status: 
+### 1.0.1. Project Status: 
 
 [click here](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/projects)
 
@@ -122,18 +121,14 @@ This is only a general graph concept of my idea.
 If you have a better or another idea please see [maybe you can help me?](#11-cool-how-can-i-help-you) sections
 
 
-### revision: 1.3 [30 April 2022] 
-#### **Not complete, to be finished !**
-###### click to enlarge
+### 7.1.1. revision: 1.3 [30 April 2022] 
+#### 7.1.1.1. **Not complete, to be finished !**
+###### 7.1.1.1.0.1. click to enlarge
 
-<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"></a>
+<a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/operating_sketches/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/operating_sketches/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"></a>
 
-###### Older version
-
- <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/MyHomeSmart-concept-learningBlock_v1.2.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/MyHomeSmart-concept-learningBlock_v1.2.drawio.png" height="50"></a> 
- <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v2.drawio.png" height="50"></a> 
- <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/raw/main/images/MyHomeSmart-concept-learningBlock_v1.drawio.png" height="50"></a>
-
+###### 7.1.1.1.0.2. Older version
+[click hede](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/tree/main/images/operating_sketches/)
 
 
 
@@ -187,10 +182,10 @@ AppDaemon is a subsystem to complement Home Assistant’s Automation and Scripti
 
 # 9. How to install the script?
 
-### **Follow these instructions ONLY if a stable, finished version has been released!**
-### *Look at the top of this readme !*
+### 9.0.1. **Follow these instructions ONLY if a stable, finished version has been released!**
+### 9.0.2. *Look at the top of this readme !*
 
-# 
+# 10. 
 
 - Install AppDeamon -> [follow here](https://appdaemon.readthedocs.io/en/latest/INSTALL.html)
   
@@ -219,10 +214,10 @@ AppDaemon is a subsystem to complement Home Assistant’s Automation and Scripti
 - Enjoy :)
   
 
-# 10. "The Reasoning" _on Hass Forum_
+# 11. "The Reasoning" _on Hass Forum_
   >  https://community.home-assistant.io/t/reasoning-artificial-intelligence-applied-to-home-assistant/408972
 
-#  11. Cool! How can I help you?
+#  12. Cool! How can I help you?
 
 This is a free, open project and has no commercial purpose and never will.
 It is distributed under the GPLv3 license, that is
