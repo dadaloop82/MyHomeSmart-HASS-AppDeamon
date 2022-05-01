@@ -37,7 +37,6 @@
 [ Table of Content ]
 
 - [1. Project Progress](#1-project-progress)
-    - [1.0.1. Project Status:](#101-project-status)
 - [2. What does mean "Give intelligence to Home automation"?](#2-what-does-mean-give-intelligence-to-home-automation)
 - [3. What is the goal of this project?](#3-what-is-the-goal-of-this-project)
 - [4. Why with Home Assistant?](#4-why-with-home-assistant)
@@ -46,23 +45,17 @@
 - [7. How to apply this to Home Assistant ?](#7-how-to-apply-this-to-home-assistant-)
   - [7.1. Hypothetical operation diagram](#71-hypothetical-operation-diagram)
     - [7.1.1. revision: 1.3 [30 April 2022]](#711-revision-13-30-april-2022)
-      - [7.1.1.1. **Not complete, to be finished !**](#7111-not-complete-to-be-finished-)
-          - [7.1.1.1.0.1. click to enlarge](#711101-click-to-enlarge)
-          - [7.1.1.1.0.2. Older version](#711102-older-version)
   - [7.2. Can you give a simpler explanation?](#72-can-you-give-a-simpler-explanation)
   - [7.3. Cool! But what are the difficulties?](#73-cool-but-what-are-the-difficulties)
-- [8. What is appDeamon?](#8-what-is-appdeamon)
-- [9. How to install the script?](#9-how-to-install-the-script)
-    - [9.0.1. **Follow these instructions ONLY if a stable, finished version has been released!**](#901-follow-these-instructions-only-if-a-stable-finished-version-has-been-released)
-    - [9.0.2. *Look at the top of this readme !*](#902-look-at-the-top-of-this-readme-)
-- [10.](#10)
+- [8. The configuration file](#8-the-configuration-file)
+    - [8.0.1. `hass_myhomesmart`](#801-hass_myhomesmart)
+- [9. What is appDeamon?](#9-what-is-appdeamon)
+- [10. How to install the script?](#10-how-to-install-the-script)
 - [11. "The Reasoning" _on Hass Forum_](#11-the-reasoning-on-hass-forum)
 - [12. Cool! How can I help you?](#12-cool-how-can-i-help-you)
 #
 
 # 1. Project Progress
-
-### 1.0.1. Project Status: 
 
 [click here](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/projects)
 
@@ -122,12 +115,10 @@ If you have a better or another idea please see [maybe you can help me?](#11-coo
 
 
 ### 7.1.1. revision: 1.3 [30 April 2022] 
-#### 7.1.1.1. **Not complete, to be finished !**
-###### 7.1.1.1.0.1. click to enlarge
 
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/operating_sketches/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/operating_sketches/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"></a>
 
-###### 7.1.1.1.0.2. Older version
+Older version
 [click hede](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/tree/main/images/operating_sketches/)
 
 
@@ -174,18 +165,53 @@ Since I have (or we have, thanks to you!) clear ideas we can certainly proceed w
 ( [maybe you can help me?](#11-cool-how-can-i-help-you) )
 
 
-# 8. What is appDeamon?
+# 8. The configuration file
+
+The configuration file is: _apps.yaml_
+
+### 8.0.1. `hass_myhomesmart`
+This is the name of the section that appDaemon wants to define the operation of the script
+
+- #### `module`
+
+  The name of the python file that should run
+
+- #### `class`
+  The name of the python class that must run for the script to work
+
+- ### `config`
+  the configuration section for MyHomeSmart-HASS-AppDeamon
+
+  - ### `include_entities`
+    Entities that you want to include in the MyHomeSmart system    
+      -   Can enter the name of the entity as provided by HomeAssistant
+          
+          example: *sensor.room_temperature*
+
+      -   Can insert the entity class to include all entities of the same class
+          example: *sensor.**      
+      
+    The system will automatically recognize read-only entities from editable ones  
+
+  - ### `exclude_entities`
+    Entities that you want to exclude from those included in the "include_entities" section    
+      -   Can enter the name of the entity as provided by HomeAssistant
+          
+          example: *sensor.room_temperature*
+
+      No value indicates that no entity, included in the section "include_entities" is excluded 
+
+
+# 9. What is appDeamon?
 
 (from https://appdaemon.readthedocs.io/en/latest/HASS_TUTORIAL.html)
 
 AppDaemon is a subsystem to complement Home Assistant’s Automation and Scripting components. AppDaemon, is a Python daemon that consumes events from Home Assistant and feeds them to snippets of Python code called Apps. An App is a Python class that is instantiated possibly multiple times from AppDaemon and registers callbacks for various system events. It is also able to inspect and set state and call services. The API provides a rich environment suited to home automation tasks that can also leverage all the power of Python.
 
-# 9. How to install the script?
+# 10. How to install the script?
 
-### 9.0.1. **Follow these instructions ONLY if a stable, finished version has been released!**
-### 9.0.2. *Look at the top of this readme !*
-
-# 10. 
+Follow these instructions ONLY if a stable, finished version has been released!
+Look at the top of this readme !
 
 - Install AppDeamon -> [follow here](https://appdaemon.readthedocs.io/en/latest/INSTALL.html)
   
