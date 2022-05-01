@@ -118,7 +118,7 @@ If you have a better or another idea please see [maybe you can help me?](#11-coo
 <a href="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/operating_sketches/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"><img src="https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/blob/main/images/operating_sketches/MyHomeSmart-concept-learningBlock_v1.3.drawio.png"></a>
 
 Older version
-[click hede](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/tree/main/images/operating_sketches/)
+[click here](https://github.com/dadaloop82/MyHomeSmart-HASS-AppDeamon/tree/main/images/operating_sketches/)
 
 
 
