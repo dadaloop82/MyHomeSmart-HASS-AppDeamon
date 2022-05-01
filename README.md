@@ -48,7 +48,6 @@
   - [7.2. Can you give a simpler explanation?](#72-can-you-give-a-simpler-explanation)
   - [7.3. Cool! But what are the difficulties?](#73-cool-but-what-are-the-difficulties)
 - [8. The configuration file](#8-the-configuration-file)
-    - [8.0.1. `hass_myhomesmart`](#801-hass_myhomesmart)
 - [9. What is appDeamon?](#9-what-is-appdeamon)
 - [10. How to install the script?](#10-how-to-install-the-script)
 - [11. "The Reasoning" _on Hass Forum_](#11-the-reasoning-on-hass-forum)
@@ -169,7 +168,7 @@ Since I have (or we have, thanks to you!) clear ideas we can certainly proceed w
 
 The configuration file is: _apps.yaml_
 
-### 8.0.1. `hass_myhomesmart`
+- ### `hass_myhomesmart`
 This is the name of the section that appDaemon wants to define the operation of the script
 
 - #### `module`
