@@ -28,7 +28,7 @@
 
 [ Table of Content ]
 
-- [1. This project is based on the following projects:](#1-this-project-is-based-on-the-following-projects)
+- [1. Inspired by projects:](#1-inspired-by-projects)
 - [2. What does mean "Give intelligence to Home automation"?](#2-what-does-mean-give-intelligence-to-home-automation)
 - [3. What is the goal of this project?](#3-what-is-the-goal-of-this-project)
 - [4. Can you give a simpler explanation?](#4-can-you-give-a-simpler-explanation)
@@ -36,7 +36,7 @@
 - [6. How to install the script?](#6-how-to-install-the-script)
 
 
-# 1. This project is based on the following projects:
+# 1. Inspired by projects:
 
 - [thesillyhome-addon-repo](https://github.com/lcmchris/thesillyhome-addon-repo) by [lcmchris](https://github.com/lcmchris) (***Apache License 2.0***)
 
